@@ -1,0 +1,83 @@
+{
+  "name": "kimi_claw_skill_bundle",
+  "version": "2026-06-10",
+  "createdAt": "2026-06-10T22:50:00+08:00",
+  "skills": [
+    {
+      "name": "anysearch",
+      "purpose": "Realtime/search/extract helper skill (AnySearch primary, kimi_search fallback)",
+      "secretIncluded": false,
+      "requiresLocalEnv": true,
+      "runtime": "node"
+    },
+    {
+      "name": "cn-stock-analysis",
+      "defaultMode": "single_stock",
+      "returnFormat": "kimi-market-v1 JSON",
+      "testedPrompt": "分析贵州茅台"
+    },
+    {
+      "name": "cn-news-catalyst-analysis",
+      "defaultModes": [
+        "news_event",
+        "memo_research",
+        "sector_stock_map",
+        "sector_tree"
+      ],
+      "returnFormat": "kimi-market-v1 JSON",
+      "testedPrompt": "英伟达发布 Vera Rubin AI 芯片，对 A 股算力产业链影响"
+    },
+    {
+      "name": "us-stock-options-analysis",
+      "defaultMode": "us_stock_options",
+      "returnFormat": "kimi-market-v1 JSON",
+      "framework": "V4 基本面+期权（十二章）",
+      "testedPrompt": "分析NVDA",
+      "referenceDocs": [
+        "references/framework.md",
+        "references/report_template.md",
+        "references/anysearch_us_stock.md",
+        "references/data_sources.md"
+      ],
+      "optionalScripts": [
+        "scripts/us_market_data.py"
+      ],
+      "optionalEnv": ".env.example (TRADIER_TOKEN / POLYGON_API_KEY / ALPHA_VANTAGE_API_KEY)"
+    },
+    {
+      "name": "cn-market-structured-output",
+      "purpose": "Shared JSON protocol and validator",
+      "schemaVersion": "kimi-market-v1",
+      "reportFormat": "markdown-heading-tree-v1",
+      "tools": [
+        "scripts/validate_market_output.py",
+        "scripts/markdown_report_to_json.py"
+      ]
+    }
+  ],
+  "samples": [
+    "samples/kimi_claw_example_us_stock_options_full_2026-06-10.json",
+    "samples/kimi_claw_example_us_stock_options_full_2026-06-10.md",
+    "samples/kimi_claw_example_cn_stock_analysis_full_2026-06-10.json",
+    "samples/kimi_claw_example_cn_stock_analysis_full_2026-06-10.md",
+    "samples/kimi_claw_example_cn_news_catalyst_full_2026-06-10.json",
+    "samples/kimi_claw_example_cn_news_catalyst_full_2026-06-10.md"
+  ],
+  "searchRouting": {
+    "primary": "AnySearch (finance.news / quote / fundamental / extract)",
+    "fallback": "kimi_search",
+    "crossVerify": "kimi_finance (realtime, market hours)",
+    "notes": [
+      "US stocks: finance.quote uses type=stock,symbol=NVDA,cn_code=",
+      "A-share: AnySearch finance.quote may need fallback to Kimi Finance"
+    ]
+  },
+  "security": {
+    "anysearchEnvIncluded": true,
+    "installSupportsAnysearchKeyEnv": true,
+    "notes": [
+      "Real API keys and local runtime.conf are intentionally excluded from zip.",
+      "Configure via: ANYSEARCH_API_KEY=... bash install.sh"
+    ]
+  }
+}
