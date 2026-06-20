@@ -1,0 +1,247 @@
+{
+  "schemaVersion": "kimi-market-v1",
+  "mode": "single_stock",
+  "generatedAt": "2026-06-20T10:30:00+08:00",
+  "asOfDate": "2026-06-20",
+  "language": "zh-CN",
+  "status": "complete",
+  "reportFormat": "markdown-heading-tree-v1",
+  "reportTitle": "中际旭创（300308）个股拆解",
+  "reportMarkdown": "# 中际旭创（300308）个股拆解\n\n## 结论\n\nAI 光模块龙头，需求弹性强，估值与订单兑现需要持续验证。综合评分 8.1，建议买入但控制仓位。\n\n## 风险\n\n客户集中、价格竞争、海外订单节奏均需跟踪。\n\n## 操作\n\n回调分批，跌破风控线复核。\n",
+  "reportSections": [
+    {
+      "order": 1,
+      "id": "s001",
+      "level": 1,
+      "title": "中际旭创（300308）个股拆解",
+      "headingMarkdown": "# 中际旭创（300308）个股拆解",
+      "anchor": "中际旭创-300308-个股拆解",
+      "startLine": 1,
+      "contentStartLine": 2,
+      "parentId": null,
+      "childrenIds": [
+        "s002",
+        "s003",
+        "s004"
+      ],
+      "headingPath": [
+        "中际旭创（300308）个股拆解"
+      ],
+      "contentMarkdown": "",
+      "content": "",
+      "contentEndLine": 2,
+      "blockEndLine": 13
+    },
+    {
+      "order": 2,
+      "id": "s002",
+      "level": 2,
+      "title": "结论",
+      "headingMarkdown": "## 结论",
+      "anchor": "结论",
+      "startLine": 3,
+      "contentStartLine": 4,
+      "parentId": "s001",
+      "childrenIds": [],
+      "headingPath": [
+        "中际旭创（300308）个股拆解",
+        "结论"
+      ],
+      "contentMarkdown": "AI 光模块龙头，需求弹性强，估值与订单兑现需要持续验证。综合评分 8.1，建议买入但控制仓位。",
+      "content": "AI 光模块龙头，需求弹性强，估值与订单兑现需要持续验证。综合评分 8.1，建议买入但控制仓位。",
+      "contentEndLine": 6,
+      "blockEndLine": 6
+    },
+    {
+      "order": 3,
+      "id": "s003",
+      "level": 2,
+      "title": "风险",
+      "headingMarkdown": "## 风险",
+      "anchor": "风险",
+      "startLine": 7,
+      "contentStartLine": 8,
+      "parentId": "s001",
+      "childrenIds": [],
+      "headingPath": [
+        "中际旭创（300308）个股拆解",
+        "风险"
+      ],
+      "contentMarkdown": "客户集中、价格竞争、海外订单节奏均需跟踪。",
+      "content": "客户集中、价格竞争、海外订单节奏均需跟踪。",
+      "contentEndLine": 10,
+      "blockEndLine": 10
+    },
+    {
+      "order": 4,
+      "id": "s004",
+      "level": 2,
+      "title": "操作",
+      "headingMarkdown": "## 操作",
+      "anchor": "操作",
+      "startLine": 11,
+      "contentStartLine": 12,
+      "parentId": "s001",
+      "childrenIds": [],
+      "headingPath": [
+        "中际旭创（300308）个股拆解",
+        "操作"
+      ],
+      "contentMarkdown": "回调分批，跌破风控线复核。",
+      "content": "回调分批，跌破风控线复核。",
+      "contentEndLine": 13,
+      "blockEndLine": 13
+    }
+  ],
+  "reportSectionTree": [
+    {
+      "order": 1,
+      "id": "s001",
+      "level": 1,
+      "title": "中际旭创（300308）个股拆解",
+      "headingMarkdown": "# 中际旭创（300308）个股拆解",
+      "anchor": "中际旭创-300308-个股拆解",
+      "startLine": 1,
+      "contentStartLine": 2,
+      "parentId": null,
+      "childrenIds": [
+        "s002",
+        "s003",
+        "s004"
+      ],
+      "headingPath": [
+        "中际旭创（300308）个股拆解"
+      ],
+      "contentMarkdown": "",
+      "content": "",
+      "contentEndLine": 2,
+      "blockEndLine": 13,
+      "children": [
+        {
+          "order": 2,
+          "id": "s002",
+          "level": 2,
+          "title": "结论",
+          "headingMarkdown": "## 结论",
+          "anchor": "结论",
+          "startLine": 3,
+          "contentStartLine": 4,
+          "parentId": "s001",
+          "childrenIds": [],
+          "headingPath": [
+            "中际旭创（300308）个股拆解",
+            "结论"
+          ],
+          "contentMarkdown": "AI 光模块龙头，需求弹性强，估值与订单兑现需要持续验证。综合评分 8.1，建议买入但控制仓位。",
+          "content": "AI 光模块龙头，需求弹性强，估值与订单兑现需要持续验证。综合评分 8.1，建议买入但控制仓位。",
+          "contentEndLine": 6,
+          "blockEndLine": 6,
+          "children": []
+        },
+        {
+          "order": 3,
+          "id": "s003",
+          "level": 2,
+          "title": "风险",
+          "headingMarkdown": "## 风险",
+          "anchor": "风险",
+          "startLine": 7,
+          "contentStartLine": 8,
+          "parentId": "s001",
+          "childrenIds": [],
+          "headingPath": [
+            "中际旭创（300308）个股拆解",
+            "风险"
+          ],
+          "contentMarkdown": "客户集中、价格竞争、海外订单节奏均需跟踪。",
+          "content": "客户集中、价格竞争、海外订单节奏均需跟踪。",
+          "contentEndLine": 10,
+          "blockEndLine": 10,
+          "children": []
+        },
+        {
+          "order": 4,
+          "id": "s004",
+          "level": 2,
+          "title": "操作",
+          "headingMarkdown": "## 操作",
+          "anchor": "操作",
+          "startLine": 11,
+          "contentStartLine": 12,
+          "parentId": "s001",
+          "childrenIds": [],
+          "headingPath": [
+            "中际旭创（300308）个股拆解",
+            "操作"
+          ],
+          "contentMarkdown": "回调分批，跌破风控线复核。",
+          "content": "回调分批，跌破风控线复核。",
+          "contentEndLine": 13,
+          "blockEndLine": 13,
+          "children": []
+        }
+      ]
+    }
+  ],
+  "stockName": "中际旭创",
+  "stockCode": "300308",
+  "market": "A股",
+  "overallScore": 8.1,
+  "recommendation": "买入",
+  "targetReturn": "待验证",
+  "stopLoss": "-8%",
+  "sections": {
+    "companyOverview": {
+      "summary": "高速光模块龙头，数据中心需求驱动，资料仍需公告核验。"
+    },
+    "financials": {
+      "summary": "收入和利润受 AI 光模块订单影响，具体数值待验证。"
+    },
+    "businessStructure": {
+      "summary": "核心为高速光模块和光通信器件。"
+    },
+    "competitiveAnalysis": {
+      "summary": "客户与交付能力是主要壁垒。"
+    },
+    "growthDrivers": {
+      "summary": "AI 算力扩张、800G/1.6T 升级、海外云厂商资本开支。"
+    },
+    "valuation": {
+      "summary": "估值需结合订单兑现和利润率跟踪。"
+    },
+    "risks": {
+      "summary": "客户集中、价格竞争、汇率与海外政策风险。"
+    },
+    "scoring": {
+      "summary": "综合评分 8.1，成长和壁垒较强，估值安全边际待验证。"
+    },
+    "investmentAdvice": {
+      "summary": "分批配置，回撤触发复核，避免追高。"
+    }
+  },
+  "dataSources": [
+    "公司公告待验证",
+    "行情待验证"
+  ],
+  "persistContract": {
+    "bizType": "single_stock",
+    "targetTables": [
+      "stock_analysis"
+    ],
+    "writeMode": "upsert_by_stockCode_taskNo"
+  },
+  "dataPath": {
+    "primary": "sections",
+    "renderPriority": [
+      "sections",
+      "overallScore",
+      "recommendation",
+      "reportMarkdown"
+    ]
+  },
+  "qualityControl": {
+    "verificationStatus": "待验证",
+    "missingDataPolicy": "缺数据标待验证，禁编造",
+    "checkedAt": "2026-06-20T10:30:00+08:00"
+  }
+}

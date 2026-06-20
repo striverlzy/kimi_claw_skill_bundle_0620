@@ -1,6 +1,6 @@
 ---
 name: cn-stock-analysis
-description: Use this skill when the user asks to analyze A-share, Hong Kong, or China-listed stocks, asks whether a Chinese stock is worth buying, asks for target prices, portfolio allocation, replacement/addition decisions, or requests a domestic stock research report using a fundamental-analysis framework. DEFAULT OUTPUT IS ONE kimi-market-v1 JSON OBJECT (mode=single_stock); 收到「分析XX」这类自然语言也必须先读 SKILL.md 与 cn-market-structured-output/references/protocol.md，再返回完整 JSON，其中 reportMarkdown 是完整十步研报。不要直接输出简短 Markdown 摘要。
+description: Use this skill when the user asks to analyze A-share, Hong Kong, or China-listed stocks, asks whether a Chinese stock is worth buying, asks for target prices, portfolio allocation, replacement/addition decisions, or requests a domestic stock research report using a fundamental-analysis framework. DEFAULT OUTPUT IS ONE kimi-market-v1 JSON OBJECT (mode=single_stock); 收到「分析XX」这类自然语言也必须直接返回 JSON 对象本身，禁止开场白、过程叙述、Markdown 围栏或先解释后 JSON。reportMarkdown 精简，优先保证 sections(9模块)/overallScore/recommendation 可渲染。
 ---
 
 # cn-stock-analysis
@@ -9,17 +9,18 @@ Use this skill for China/HK stock analysis and portfolio-fit decisions.
 
 ## MUST（开工前必读，不可跳过）
 
-1. 默认产出 **一个合法 kimi-market-v1 JSON 对象**，`mode="single_stock"`，外面不裹 Markdown 代码围栏。
+1. 默认产出 **一个合法 kimi-market-v1 JSON 对象本身**，`mode="single_stock"`，外面不裹 Markdown 代码围栏。
 2. 动手前先读：本文件全文 → `references/framework.md` → `cn-market-structured-output/references/protocol.md`。
-3. `reportMarkdown` 必须是 **完整十步研报**（结论摘要、业务结构、竞争对比、近期财务、未来增速、估值、风险、投资结论、组合配置、九因子评分）。
-4. 从 `reportMarkdown` 标题生成 `reportSections` + `reportSectionTree`，再补 `sections / recommendation / overallScore / targetReturn / stopLoss / dataSources`。
+3. **最终回答的第一个字符必须是 `{`，最后一个字符必须是 `}`**。禁止输出“现在我开始构建报告”“下面是JSON”“分析如下”等任何开场白、过程叙述或结束语。
+4. `reportMarkdown` 必须精简，保留结论、关键证据、主要风险和操作建议即可；不要输出超长十步全文。优先保证 `sections / recommendation / overallScore / targetReturn / stopLoss / dataSources` 完整。
+5. 从精简 `reportMarkdown` 标题生成 `reportSections` + `reportSectionTree`，再补 `sections / recommendation / overallScore / targetReturn / stopLoss / dataSources`。
 5. 如果 Java payload 提供 `taskNo`/`bizId`/`autoPersist`/`ingest`，必须在 JSON 中填 `persistContract`；落库只通过 `cn-market-writeback` + 后端 `AiMarketMapper`。
 6. 数据走 AnySearch 优先；缺数据标 `待验证`，**禁止编造**价格、财务、目标价、市占率。
 7. 仅当用户明确说「用自然语言/口语/不要 JSON」时，才只输出 Markdown。
 
 ## Default Return Contract
 
-Return one valid JSON object by default. Use `~/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md` and output `mode="single_stock"`. Preserve the original full report in `reportMarkdown`, then derive `reportSections` and `reportSectionTree` from the Markdown headings; structured fields extend the report, they do not replace it.
+Return one valid JSON object by default. Use `~/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md` and output `mode="single_stock"`. `reportMarkdown` should be concise; structured `sections` are the primary render source.
 
 Only use Markdown/natural language if the user explicitly asks for a prose report, quick chat answer, or non-JSON explanation.
 
@@ -39,7 +40,7 @@ Only use Markdown/natural language if the user explicitly asks for a prose repor
 ## Output Rules
 
 - Default to `mode="single_stock"` JSON with the common envelope and these top-level fields: `stockName`, `stockCode`, `market`, `overallScore`, `recommendation`, `targetReturn`, `stopLoss`, `sections`, `dataSources`.
-- Include `reportMarkdown` with the complete human-readable ten-step report.
+- Include concise `reportMarkdown` with conclusion, key evidence, risks, and action plan. Keep it short enough to avoid stream truncation.
 - Include heading-based document fields: `reportFormat="markdown-heading-tree-v1"`, `reportTitle`, `reportSections`, and `reportSectionTree`.
 - `reportSections` must mirror the actual Markdown headings (`#`, `##`, `###`...), with `id`, `parentId`, `headingPath`, `headingMarkdown`, `childrenIds`, line numbers, and `contentMarkdown`. Do not compress the original report into only short fields.
 - `sections` must include `companyOverview`, `financials`, `businessStructure`, `competitiveAnalysis`, `growthDrivers`, `valuation`, `risks`, `scoring`, and `investmentAdvice`.
@@ -51,7 +52,7 @@ Only use Markdown/natural language if the user explicitly asks for a prose repor
 - Put executable portfolio guidance, position size, trigger conditions, target price, and stop-loss in `sections.investmentAdvice`.
 - Include optional `stockMeta` aliases (`segment`, `coreStatus`, `chainStage`, `corePosition`, `investmentLogic`) when the request is tied to a relation-card decomposition.
 - For persistable gateway requests, include `persistContract.mapper="AiMarketMapper"` and `targetTables=["stock_analysis"]`.
-- Return one valid JSON object only. Do not wrap in Markdown fences. Mark unsupported data as `待验证` or `source unavailable`.
+- Return one valid JSON object only. Do not wrap in Markdown fences. Do not output any natural-language preface or progress narration. Mark unsupported data as `待验证` or `source unavailable`.
 
 ## Guardrails
 

@@ -174,8 +174,9 @@ def validate_report_sections(errors, doc):
         errors.append("reportTitle: missing")
 
     report = doc.get("reportMarkdown")
-    if not isinstance(report, str) or len(report.strip()) < 1000:
-        errors.append("reportMarkdown: missing or too short to preserve original report")
+    min_report_len = 120 if doc.get("mode") == "single_stock" else 1000
+    if not isinstance(report, str) or len(report.strip()) < min_report_len:
+        errors.append("reportMarkdown: missing or too short")
 
     sections = doc.get("reportSections")
     if not isinstance(sections, list) or not sections:

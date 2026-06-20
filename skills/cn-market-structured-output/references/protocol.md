@@ -485,6 +485,8 @@ Persistence target:
 
 Use for one A/HK/China-listed stock deep analysis.
 
+Rendering priority: `single_stock` must be returned as the JSON object itself. Do not prepend prose, progress narration, or Markdown fences. `reportMarkdown` should be concise; the frontend renders primarily from `sections`, `overallScore`, and `recommendation`.
+
 Required fields:
 
 ```json
