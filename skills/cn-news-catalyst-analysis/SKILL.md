@@ -5,16 +5,16 @@ description: Use this skill when the user provides or asks about an industry new
 
 # cn-news-catalyst-analysis
 
-Use this skill for catalyst-first China/A-share analysis: verify a news item or rumor, map its industry-chain impact, identify A-share beneficiaries, and separate industrial value from short-term trading value.
+Use this skill for catalyst-first China/A-share analysis and pure industry-chain sector decomposition. `news_event`/`memo_research` use the message verification framework; `sector_stock_map`/`sector_tree` use the industry-chain framework and must not run message-truth, market-style, or short-term trading-value ranking.
 
 ## MUST（开工前必读，不可跳过）
 
 1. 默认产出 **一个合法 kimi-market-v1 JSON 对象**，按输入选 `mode=news_event/memo_research/sector_stock_map/sector_tree`，外面不裹 Markdown 代码围栏。
 2. 动手前先读：本文件全文 → `references/framework.md` → `cn-market-structured-output/references/protocol.md`。
-3. `reportMarkdown` 必须是 **完整催化剂报告**（消息核实、消息价值、产业链全景、受益排序、短期交易价值、风格切换、操作策略、风险与失效条件）。
+3. `news_event`/`memo_research` 的 `reportMarkdown` 必须是 **完整催化剂报告**（消息核实、消息价值、产业链全景、受益排序、短期交易价值、风格切换、操作策略、风险与失效条件）；`sector_stock_map`/`sector_tree` 的 `reportMarkdown` 必须是 **纯产业链报告**（产业链全景、上游核心、中游三档、下游价值量、核心标的综合排序、关键验证点），不做消息真伪验证/市场风格/短线交易价值排序。
 4. 从 `reportMarkdown` 标题生成 `reportSections` + `reportSectionTree`，再补 `analysis / sourceVerification / decomposition / stocks / keyValidationPoints / dataPath / qualityControl`。
 5. 如果 Java payload 提供 `taskNo`/`bizId`/`autoPersist`/`ingest`，必须在 JSON 中填 `persistContract`；落库只通过 `cn-market-writeback` + 后端 `AiMarketMapper`。
-6. 数据走 AnySearch 优先；传闻必须核实并在 `analysis.riskWarning` 标注证伪风险；缺数据标 `待验证`，**禁止编造**链接、时间、订单、市占率、股价、市场风格信号。
+6. `news_event`/`memo_research` 数据走 AnySearch 优先；传闻必须核实并在 `analysis.riskWarning` 标注证伪风险；缺数据标 `待验证`，**禁止编造**链接、时间、订单、市占率、股价、市场风格信号。`sector_stock_map`/`sector_tree` 不做 AnySearch 依赖调整，按现有可用来源补产业链事实。
 7. 仅当用户明确说「用自然语言/口语/不要 JSON」时，才只输出 Markdown。
 
 ## Default Return Contract
@@ -28,6 +28,11 @@ Mode selection:
 - `news_event`: news, rumor, policy, product launch, or overseas catalyst.
 - `memo_research`: meeting minutes, expert calls, broker reports, company notes, or industry notes.
 
+Mode framework split:
+
+- `sector_tree` and `sector_stock_map`: pure industry-chain modes. Skip message source verification, information-increment reset, market-style judgement, short-term trading-value ranking, and style-switch plans. Output top-level `stocks` and frontend decomposition shape from protocol.md.
+- `news_event` and `memo_research`: catalyst/message modes. Keep the full message verification, authenticity, market-style, and short-term trading-value framework.
+
 Only use Markdown/natural language if the user explicitly asks for a prose report, quick chat answer, or non-JSON explanation.
 
 Preserve the original full catalyst report in `reportMarkdown`, then derive `reportSections` and `reportSectionTree` from the Markdown headings; structured fields extend the report, they do not replace it.
@@ -36,7 +41,7 @@ Preserve the original full catalyst report in `reportMarkdown`, then derive `rep
 
 1. Get the current date before analyzing recent news, market reaction, price moves, regulatory events, or relative time windows.
 2. Read `references/framework.md`.
-3. Identify the input type: official announcement, media report, research note, meeting minutes, market rumor, social-media "小作文", policy item, product launch, or overseas company catalyst.
+3. Identify the input type and mode. If mode is `sector_tree` or `sector_stock_map`, switch to the pure industry-chain workflow in `references/framework.md` and do not apply message verification / short-term trading framework.
 4. **AnySearch 优先**：先读 `anysearch` skill 与其 `runtime.conf`，做来源发现、垂直搜索、batch_search 和 `extract` 全文抓取；`kimi_finance` 用于行情反应核验；**不要默认使用 `kimi_search`**，仅当 AnySearch 连续失败且在 `dataPath` 注明后才可 fallback。
 5. Verify the message using the strongest available sources: official company/regulator/exchange sources first, then major financial media or industry media, then market-price cross-checks. Do not treat unverified rumors as facts.
 6. If the catalyst involves overseas giants such as NVIDIA, Microsoft, Tesla, Apple, Google, AMD, Broadcom, TSMC, or ASML, explicitly analyze the transmission path into A-shares: direct supplier, indirect supplier, industry-chain bottleneck, domestic substitution, or pure sentiment mapping.

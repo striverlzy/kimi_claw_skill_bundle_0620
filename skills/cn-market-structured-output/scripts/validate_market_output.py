@@ -21,6 +21,7 @@ VALID_MODES = {
 VALID_STATUS = {"complete", "partial", "needs_manual_review"}
 VALID_VERIFICATION = {"已验证", "部分验证", "待验证", "数据冲突"}
 VALID_RELATION = {"T0", "T1", "T2", "T3", "T4"}
+SECTOR_TREE_CATEGORIES = {"上游材料", "上游设备", "中游制造", "中游工艺", "下游应用", "技术路线", "市场题材分支", "其他"}
 CHINA_PERSIST_MODES = {
     "sector_tree",
     "sector_stock_map",
@@ -307,6 +308,46 @@ def validate_persist_contract(errors, doc):
         errors.append("persistContract.ingest: must be object")
 
 
+def validate_sector_decomposition(errors, doc):
+    decomposition = doc.get("decomposition")
+    if not isinstance(decomposition, dict):
+        errors.append("decomposition: must be object")
+        return
+    required = {"panorama", "upstream", "midstream", "downstream", "investmentRanking", "validationPoints"}
+    add_missing(errors, "decomposition", decomposition, required)
+    midstream = decomposition.get("midstream")
+    if not isinstance(midstream, dict):
+        errors.append("decomposition.midstream: must be object")
+    else:
+        add_missing(errors, "decomposition.midstream", midstream, {"firstTier", "secondTier", "thirdTier"})
+    if "nodes" in decomposition or "edges" in decomposition:
+        errors.append("decomposition: sector_stock_map must use frontend shape, not nodes/edges only")
+
+
+def validate_sector_tree(errors, doc):
+    candidates = doc.get("candidates")
+    if not isinstance(candidates, list):
+        errors.append("candidates: must be array")
+        return
+    elif len(candidates) < 6:
+        errors.append("candidates: sector_tree should include at least 6 candidates")
+    core_count = 0
+    for idx, candidate in enumerate(candidates):
+        if not isinstance(candidate, dict):
+            errors.append(f"candidates[{idx}]: must be object")
+            continue
+        category = candidate.get("categoryType")
+        if category not in SECTOR_TREE_CATEGORIES:
+            errors.append(f"candidates[{idx}].categoryType: invalid")
+        if candidate.get("isCore") is True:
+            core_count += 1
+        level = candidate.get("level")
+        if level not in {2, 3}:
+            errors.append(f"candidates[{idx}].level: must be 2 or 3")
+    if core_count > 2:
+        errors.append("candidates.isCore: at most 2 core candidates")
+
+
 def validate_doc(doc):
     errors = []
     if not isinstance(doc, dict):
@@ -344,11 +385,12 @@ def validate_doc(doc):
         validate_report_sections(errors, doc)
 
     if mode == "sector_tree":
-        candidates = doc.get("candidates")
-        if not isinstance(candidates, list):
-            errors.append("candidates: must be array")
-        elif len(candidates) < 6:
-            errors.append("candidates: sector_tree should include at least 6 candidates")
+        validate_sector_tree(errors, doc)
+
+    if mode == "sector_stock_map":
+        if not isinstance(doc.get("stocks"), list) or not doc.get("stocks"):
+            errors.append("stocks: sector_stock_map must include top-level non-empty stocks")
+        validate_sector_decomposition(errors, doc)
 
     if mode == "us_stock_options":
         options = doc.get("options")

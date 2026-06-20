@@ -1,0 +1,581 @@
+{
+  "schemaVersion": "kimi-market-v1",
+  "generatedAt": "2026-06-20T10:00:00+08:00",
+  "asOfDate": "2026-06-20",
+  "language": "zh-CN",
+  "status": "complete",
+  "dataPath": {
+    "search": "未使用",
+    "marketData": "未使用",
+    "filings": "不可用",
+    "notes": [
+      "样例数据，仅用于协议校验"
+    ]
+  },
+  "qualityControl": {
+    "dataFreshness": "unknown",
+    "sourceCoverage": "medium",
+    "hallucinationRisk": "low",
+    "missingFields": [],
+    "manualReviewReasons": []
+  },
+  "mode": "sector_stock_map",
+  "sectorName": "PCB",
+  "subSectorName": "高频CCL",
+  "reportFormat": "markdown-heading-tree-v1",
+  "reportTitle": "高频CCL产业链全景拆解样例",
+  "reportMarkdown": "# 高频CCL产业链全景拆解样例\n\n本样例用于校验 sector_stock_map 的纯产业链输出形状，不包含消息真伪验证、市场风格判断或短线交易价值排序。产业链围绕高频高速覆铜板，从上游树脂、铜箔、玻纤布到中游CCL制造，再到下游AI服务器PCB应用展开。\n\n## 产业链全景\n\n上游包括特种树脂、电子级玻纤布和铜箔，中游为高频高速覆铜板制造，下游主要面向AI服务器、交换机和高速通信设备。价值传导来自AI算力设备对低介电、低损耗材料的需求提升。\n\n## 上游核心标的\n\n上游核心关注特种树脂、低粗糙度铜箔与电子级玻纤布。筛选口径是技术壁垒、客户认证周期和国产替代确定性，而不是短线交易风格。\n\n## 中游三档\n\n第一档是一体化龙头和主流高频高速CCL供应商，第二档是细分材料或工艺隐形冠军，第三档是小市值高弹性和边际受益公司。\n\n## 下游价值量\n\nAI服务器PCB层数、信号速率和材料要求提升，高频高速CCL单机价值量较传统服务器有明显提升，具体订单和价值量需持续跟踪公司公告、产业链调研和客户认证进展。\n\n## 综合排序\n\n综合排序按技术壁垒30%、国产替代25%、业绩弹性25%、估值空间20%计算。排序结果用于产业链受益强弱判断，不等同于短线买卖建议。\n\n## 关键验证点\n\n验证点包括客户认证进度、AI服务器订单释放、低损耗材料良率、扩产节奏、单价和毛利率变化。缺少公开来源的数据必须标注待验证。\n\n## 补充说明\n\n该样例继续强调板块拆解不是新闻核验任务。分析对象是一个产业链环节，因此研究重点放在材料、工艺、产能、客户认证、国产替代和价值量传导。若后续真实执行中输入只给出板块名称，也应围绕产业链事实展开，不应引入网传小作文风险、短线市场风格、龙虎榜、连板高度、黄白线分化等消息类或交易类判断。对没有公开来源的数据，应保留待验证，并通过验证点要求人工或后续数据源确认。\n\n在落库结构上，顶层 stocks 是后端关联个股写入的唯一主入口。payload 可以保留辅助数据，但不能只把股票放在 payload.stocks。decomposition 必须直接服务用户侧全景抽屉，使用 panorama、upstream、midstream 三档、downstream、investmentRanking、validationPoints 这些稳定字段，不能只输出节点边图。\n\n## 样例完整性扩展\n\n真实执行时，产业链全景应说明上游树脂体系、铜箔粗糙度、玻纤布等级、填料体系、压合工艺和中游覆铜板制造能力之间的关系。上游材料决定介电常数、介质损耗、耐热性和可靠性，中游制造决定批量稳定性、客户认证节奏和良率，下游AI服务器、交换机和高速通信设备决定需求弹性。若某公司只具备概念关联但没有产品、客户或认证线索，应下调 relationLevel，而不是因为市场偏好小市值就提高排名。\n\n核心标的综合排序应使用技术壁垒、国产替代、业绩弹性和估值空间四个产业维度。技术壁垒包括配方能力、工艺窗口、客户验证、量产良率和专利积累；国产替代包括进口替代空间、海外限制风险和国内客户导入；业绩弹性包括业务收入占比、产能释放、价格弹性和毛利率；估值空间只作为产业排序中的一项，不得覆盖基本事实。\n\n关键验证点需要可持续跟踪：公司公告中的扩产和认证进度、主要客户或终端需求变化、AI服务器或高速交换机出货节奏、上游材料价格和供给、低损耗材料良率、行业价格竞争、海外龙头供货变化。缺少公开数据时必须写待验证，等待用户或后续数据源补充。\n",
+  "reportSections": [
+    {
+      "order": 1,
+      "id": "s001",
+      "level": 1,
+      "title": "高频CCL产业链全景拆解样例",
+      "headingMarkdown": "# 高频CCL产业链全景拆解样例",
+      "anchor": "高频ccl产业链全景拆解样例",
+      "startLine": 1,
+      "contentStartLine": 2,
+      "parentId": null,
+      "childrenIds": [
+        "s002",
+        "s003",
+        "s004",
+        "s005",
+        "s006",
+        "s007",
+        "s008",
+        "s009"
+      ],
+      "headingPath": [
+        "高频CCL产业链全景拆解样例"
+      ],
+      "contentMarkdown": "本样例用于校验 sector_stock_map 的纯产业链输出形状，不包含消息真伪验证、市场风格判断或短线交易价值排序。产业链围绕高频高速覆铜板，从上游树脂、铜箔、玻纤布到中游CCL制造，再到下游AI服务器PCB应用展开。",
+      "content": "本样例用于校验 sector_stock_map 的纯产业链输出形状，不包含消息真伪验证、市场风格判断或短线交易价值排序。产业链围绕高频高速覆铜板，从上游树脂、铜箔、玻纤布到中游CCL制造，再到下游AI服务器PCB应用展开。",
+      "contentEndLine": 4,
+      "blockEndLine": 41
+    },
+    {
+      "order": 2,
+      "id": "s002",
+      "level": 2,
+      "title": "产业链全景",
+      "headingMarkdown": "## 产业链全景",
+      "anchor": "产业链全景",
+      "startLine": 5,
+      "contentStartLine": 6,
+      "parentId": "s001",
+      "childrenIds": [],
+      "headingPath": [
+        "高频CCL产业链全景拆解样例",
+        "产业链全景"
+      ],
+      "contentMarkdown": "上游包括特种树脂、电子级玻纤布和铜箔，中游为高频高速覆铜板制造，下游主要面向AI服务器、交换机和高速通信设备。价值传导来自AI算力设备对低介电、低损耗材料的需求提升。",
+      "content": "上游包括特种树脂、电子级玻纤布和铜箔，中游为高频高速覆铜板制造，下游主要面向AI服务器、交换机和高速通信设备。价值传导来自AI算力设备对低介电、低损耗材料的需求提升。",
+      "contentEndLine": 8,
+      "blockEndLine": 8
+    },
+    {
+      "order": 3,
+      "id": "s003",
+      "level": 2,
+      "title": "上游核心标的",
+      "headingMarkdown": "## 上游核心标的",
+      "anchor": "上游核心标的",
+      "startLine": 9,
+      "contentStartLine": 10,
+      "parentId": "s001",
+      "childrenIds": [],
+      "headingPath": [
+        "高频CCL产业链全景拆解样例",
+        "上游核心标的"
+      ],
+      "contentMarkdown": "上游核心关注特种树脂、低粗糙度铜箔与电子级玻纤布。筛选口径是技术壁垒、客户认证周期和国产替代确定性，而不是短线交易风格。",
+      "content": "上游核心关注特种树脂、低粗糙度铜箔与电子级玻纤布。筛选口径是技术壁垒、客户认证周期和国产替代确定性，而不是短线交易风格。",
+      "contentEndLine": 12,
+      "blockEndLine": 12
+    },
+    {
+      "order": 4,
+      "id": "s004",
+      "level": 2,
+      "title": "中游三档",
+      "headingMarkdown": "## 中游三档",
+      "anchor": "中游三档",
+      "startLine": 13,
+      "contentStartLine": 14,
+      "parentId": "s001",
+      "childrenIds": [],
+      "headingPath": [
+        "高频CCL产业链全景拆解样例",
+        "中游三档"
+      ],
+      "contentMarkdown": "第一档是一体化龙头和主流高频高速CCL供应商，第二档是细分材料或工艺隐形冠军，第三档是小市值高弹性和边际受益公司。",
+      "content": "第一档是一体化龙头和主流高频高速CCL供应商，第二档是细分材料或工艺隐形冠军，第三档是小市值高弹性和边际受益公司。",
+      "contentEndLine": 16,
+      "blockEndLine": 16
+    },
+    {
+      "order": 5,
+      "id": "s005",
+      "level": 2,
+      "title": "下游价值量",
+      "headingMarkdown": "## 下游价值量",
+      "anchor": "下游价值量",
+      "startLine": 17,
+      "contentStartLine": 18,
+      "parentId": "s001",
+      "childrenIds": [],
+      "headingPath": [
+        "高频CCL产业链全景拆解样例",
+        "下游价值量"
+      ],
+      "contentMarkdown": "AI服务器PCB层数、信号速率和材料要求提升，高频高速CCL单机价值量较传统服务器有明显提升，具体订单和价值量需持续跟踪公司公告、产业链调研和客户认证进展。",
+      "content": "AI服务器PCB层数、信号速率和材料要求提升，高频高速CCL单机价值量较传统服务器有明显提升，具体订单和价值量需持续跟踪公司公告、产业链调研和客户认证进展。",
+      "contentEndLine": 20,
+      "blockEndLine": 20
+    },
+    {
+      "order": 6,
+      "id": "s006",
+      "level": 2,
+      "title": "综合排序",
+      "headingMarkdown": "## 综合排序",
+      "anchor": "综合排序",
+      "startLine": 21,
+      "contentStartLine": 22,
+      "parentId": "s001",
+      "childrenIds": [],
+      "headingPath": [
+        "高频CCL产业链全景拆解样例",
+        "综合排序"
+      ],
+      "contentMarkdown": "综合排序按技术壁垒30%、国产替代25%、业绩弹性25%、估值空间20%计算。排序结果用于产业链受益强弱判断，不等同于短线买卖建议。",
+      "content": "综合排序按技术壁垒30%、国产替代25%、业绩弹性25%、估值空间20%计算。排序结果用于产业链受益强弱判断，不等同于短线买卖建议。",
+      "contentEndLine": 24,
+      "blockEndLine": 24
+    },
+    {
+      "order": 7,
+      "id": "s007",
+      "level": 2,
+      "title": "关键验证点",
+      "headingMarkdown": "## 关键验证点",
+      "anchor": "关键验证点",
+      "startLine": 25,
+      "contentStartLine": 26,
+      "parentId": "s001",
+      "childrenIds": [],
+      "headingPath": [
+        "高频CCL产业链全景拆解样例",
+        "关键验证点"
+      ],
+      "contentMarkdown": "验证点包括客户认证进度、AI服务器订单释放、低损耗材料良率、扩产节奏、单价和毛利率变化。缺少公开来源的数据必须标注待验证。",
+      "content": "验证点包括客户认证进度、AI服务器订单释放、低损耗材料良率、扩产节奏、单价和毛利率变化。缺少公开来源的数据必须标注待验证。",
+      "contentEndLine": 28,
+      "blockEndLine": 28
+    },
+    {
+      "order": 8,
+      "id": "s008",
+      "level": 2,
+      "title": "补充说明",
+      "headingMarkdown": "## 补充说明",
+      "anchor": "补充说明",
+      "startLine": 29,
+      "contentStartLine": 30,
+      "parentId": "s001",
+      "childrenIds": [],
+      "headingPath": [
+        "高频CCL产业链全景拆解样例",
+        "补充说明"
+      ],
+      "contentMarkdown": "该样例继续强调板块拆解不是新闻核验任务。分析对象是一个产业链环节，因此研究重点放在材料、工艺、产能、客户认证、国产替代和价值量传导。若后续真实执行中输入只给出板块名称，也应围绕产业链事实展开，不应引入网传小作文风险、短线市场风格、龙虎榜、连板高度、黄白线分化等消息类或交易类判断。对没有公开来源的数据，应保留待验证，并通过验证点要求人工或后续数据源确认。\n\n在落库结构上，顶层 stocks 是后端关联个股写入的唯一主入口。payload 可以保留辅助数据，但不能只把股票放在 payload.stocks。decomposition 必须直接服务用户侧全景抽屉，使用 panorama、upstream、midstream 三档、downstream、investmentRanking、validationPoints 这些稳定字段，不能只输出节点边图。",
+      "content": "该样例继续强调板块拆解不是新闻核验任务。分析对象是一个产业链环节，因此研究重点放在材料、工艺、产能、客户认证、国产替代和价值量传导。若后续真实执行中输入只给出板块名称，也应围绕产业链事实展开，不应引入网传小作文风险、短线市场风格、龙虎榜、连板高度、黄白线分化等消息类或交易类判断。对没有公开来源的数据，应保留待验证，并通过验证点要求人工或后续数据源确认。\n\n在落库结构上，顶层 stocks 是后端关联个股写入的唯一主入口。payload 可以保留辅助数据，但不能只把股票放在 payload.stocks。decomposition 必须直接服务用户侧全景抽屉，使用 panorama、upstream、midstream 三档、downstream、investmentRanking、validationPoints 这些稳定字段，不能只输出节点边图。",
+      "contentEndLine": 34,
+      "blockEndLine": 34
+    },
+    {
+      "order": 9,
+      "id": "s009",
+      "level": 2,
+      "title": "样例完整性扩展",
+      "headingMarkdown": "## 样例完整性扩展",
+      "anchor": "样例完整性扩展",
+      "startLine": 35,
+      "contentStartLine": 36,
+      "parentId": "s001",
+      "childrenIds": [],
+      "headingPath": [
+        "高频CCL产业链全景拆解样例",
+        "样例完整性扩展"
+      ],
+      "contentMarkdown": "真实执行时，产业链全景应说明上游树脂体系、铜箔粗糙度、玻纤布等级、填料体系、压合工艺和中游覆铜板制造能力之间的关系。上游材料决定介电常数、介质损耗、耐热性和可靠性，中游制造决定批量稳定性、客户认证节奏和良率，下游AI服务器、交换机和高速通信设备决定需求弹性。若某公司只具备概念关联但没有产品、客户或认证线索，应下调 relationLevel，而不是因为市场偏好小市值就提高排名。\n\n核心标的综合排序应使用技术壁垒、国产替代、业绩弹性和估值空间四个产业维度。技术壁垒包括配方能力、工艺窗口、客户验证、量产良率和专利积累；国产替代包括进口替代空间、海外限制风险和国内客户导入；业绩弹性包括业务收入占比、产能释放、价格弹性和毛利率；估值空间只作为产业排序中的一项，不得覆盖基本事实。\n\n关键验证点需要可持续跟踪：公司公告中的扩产和认证进度、主要客户或终端需求变化、AI服务器或高速交换机出货节奏、上游材料价格和供给、低损耗材料良率、行业价格竞争、海外龙头供货变化。缺少公开数据时必须写待验证，等待用户或后续数据源补充。",
+      "content": "真实执行时，产业链全景应说明上游树脂体系、铜箔粗糙度、玻纤布等级、填料体系、压合工艺和中游覆铜板制造能力之间的关系。上游材料决定介电常数、介质损耗、耐热性和可靠性，中游制造决定批量稳定性、客户认证节奏和良率，下游AI服务器、交换机和高速通信设备决定需求弹性。若某公司只具备概念关联但没有产品、客户或认证线索，应下调 relationLevel，而不是因为市场偏好小市值就提高排名。\n\n核心标的综合排序应使用技术壁垒、国产替代、业绩弹性和估值空间四个产业维度。技术壁垒包括配方能力、工艺窗口、客户验证、量产良率和专利积累；国产替代包括进口替代空间、海外限制风险和国内客户导入；业绩弹性包括业务收入占比、产能释放、价格弹性和毛利率；估值空间只作为产业排序中的一项，不得覆盖基本事实。\n\n关键验证点需要可持续跟踪：公司公告中的扩产和认证进度、主要客户或终端需求变化、AI服务器或高速交换机出货节奏、上游材料价格和供给、低损耗材料良率、行业价格竞争、海外龙头供货变化。缺少公开数据时必须写待验证，等待用户或后续数据源补充。",
+      "contentEndLine": 41,
+      "blockEndLine": 41
+    }
+  ],
+  "reportSectionTree": [
+    {
+      "order": 1,
+      "id": "s001",
+      "level": 1,
+      "title": "高频CCL产业链全景拆解样例",
+      "headingMarkdown": "# 高频CCL产业链全景拆解样例",
+      "anchor": "高频ccl产业链全景拆解样例",
+      "startLine": 1,
+      "contentStartLine": 2,
+      "parentId": null,
+      "childrenIds": [
+        "s002",
+        "s003",
+        "s004",
+        "s005",
+        "s006",
+        "s007",
+        "s008",
+        "s009"
+      ],
+      "headingPath": [
+        "高频CCL产业链全景拆解样例"
+      ],
+      "contentMarkdown": "本样例用于校验 sector_stock_map 的纯产业链输出形状，不包含消息真伪验证、市场风格判断或短线交易价值排序。产业链围绕高频高速覆铜板，从上游树脂、铜箔、玻纤布到中游CCL制造，再到下游AI服务器PCB应用展开。",
+      "content": "本样例用于校验 sector_stock_map 的纯产业链输出形状，不包含消息真伪验证、市场风格判断或短线交易价值排序。产业链围绕高频高速覆铜板，从上游树脂、铜箔、玻纤布到中游CCL制造，再到下游AI服务器PCB应用展开。",
+      "contentEndLine": 4,
+      "blockEndLine": 41,
+      "children": [
+        {
+          "order": 2,
+          "id": "s002",
+          "level": 2,
+          "title": "产业链全景",
+          "headingMarkdown": "## 产业链全景",
+          "anchor": "产业链全景",
+          "startLine": 5,
+          "contentStartLine": 6,
+          "parentId": "s001",
+          "childrenIds": [],
+          "headingPath": [
+            "高频CCL产业链全景拆解样例",
+            "产业链全景"
+          ],
+          "contentMarkdown": "上游包括特种树脂、电子级玻纤布和铜箔，中游为高频高速覆铜板制造，下游主要面向AI服务器、交换机和高速通信设备。价值传导来自AI算力设备对低介电、低损耗材料的需求提升。",
+          "content": "上游包括特种树脂、电子级玻纤布和铜箔，中游为高频高速覆铜板制造，下游主要面向AI服务器、交换机和高速通信设备。价值传导来自AI算力设备对低介电、低损耗材料的需求提升。",
+          "contentEndLine": 8,
+          "blockEndLine": 8,
+          "children": []
+        },
+        {
+          "order": 3,
+          "id": "s003",
+          "level": 2,
+          "title": "上游核心标的",
+          "headingMarkdown": "## 上游核心标的",
+          "anchor": "上游核心标的",
+          "startLine": 9,
+          "contentStartLine": 10,
+          "parentId": "s001",
+          "childrenIds": [],
+          "headingPath": [
+            "高频CCL产业链全景拆解样例",
+            "上游核心标的"
+          ],
+          "contentMarkdown": "上游核心关注特种树脂、低粗糙度铜箔与电子级玻纤布。筛选口径是技术壁垒、客户认证周期和国产替代确定性，而不是短线交易风格。",
+          "content": "上游核心关注特种树脂、低粗糙度铜箔与电子级玻纤布。筛选口径是技术壁垒、客户认证周期和国产替代确定性，而不是短线交易风格。",
+          "contentEndLine": 12,
+          "blockEndLine": 12,
+          "children": []
+        },
+        {
+          "order": 4,
+          "id": "s004",
+          "level": 2,
+          "title": "中游三档",
+          "headingMarkdown": "## 中游三档",
+          "anchor": "中游三档",
+          "startLine": 13,
+          "contentStartLine": 14,
+          "parentId": "s001",
+          "childrenIds": [],
+          "headingPath": [
+            "高频CCL产业链全景拆解样例",
+            "中游三档"
+          ],
+          "contentMarkdown": "第一档是一体化龙头和主流高频高速CCL供应商，第二档是细分材料或工艺隐形冠军，第三档是小市值高弹性和边际受益公司。",
+          "content": "第一档是一体化龙头和主流高频高速CCL供应商，第二档是细分材料或工艺隐形冠军，第三档是小市值高弹性和边际受益公司。",
+          "contentEndLine": 16,
+          "blockEndLine": 16,
+          "children": []
+        },
+        {
+          "order": 5,
+          "id": "s005",
+          "level": 2,
+          "title": "下游价值量",
+          "headingMarkdown": "## 下游价值量",
+          "anchor": "下游价值量",
+          "startLine": 17,
+          "contentStartLine": 18,
+          "parentId": "s001",
+          "childrenIds": [],
+          "headingPath": [
+            "高频CCL产业链全景拆解样例",
+            "下游价值量"
+          ],
+          "contentMarkdown": "AI服务器PCB层数、信号速率和材料要求提升，高频高速CCL单机价值量较传统服务器有明显提升，具体订单和价值量需持续跟踪公司公告、产业链调研和客户认证进展。",
+          "content": "AI服务器PCB层数、信号速率和材料要求提升，高频高速CCL单机价值量较传统服务器有明显提升，具体订单和价值量需持续跟踪公司公告、产业链调研和客户认证进展。",
+          "contentEndLine": 20,
+          "blockEndLine": 20,
+          "children": []
+        },
+        {
+          "order": 6,
+          "id": "s006",
+          "level": 2,
+          "title": "综合排序",
+          "headingMarkdown": "## 综合排序",
+          "anchor": "综合排序",
+          "startLine": 21,
+          "contentStartLine": 22,
+          "parentId": "s001",
+          "childrenIds": [],
+          "headingPath": [
+            "高频CCL产业链全景拆解样例",
+            "综合排序"
+          ],
+          "contentMarkdown": "综合排序按技术壁垒30%、国产替代25%、业绩弹性25%、估值空间20%计算。排序结果用于产业链受益强弱判断，不等同于短线买卖建议。",
+          "content": "综合排序按技术壁垒30%、国产替代25%、业绩弹性25%、估值空间20%计算。排序结果用于产业链受益强弱判断，不等同于短线买卖建议。",
+          "contentEndLine": 24,
+          "blockEndLine": 24,
+          "children": []
+        },
+        {
+          "order": 7,
+          "id": "s007",
+          "level": 2,
+          "title": "关键验证点",
+          "headingMarkdown": "## 关键验证点",
+          "anchor": "关键验证点",
+          "startLine": 25,
+          "contentStartLine": 26,
+          "parentId": "s001",
+          "childrenIds": [],
+          "headingPath": [
+            "高频CCL产业链全景拆解样例",
+            "关键验证点"
+          ],
+          "contentMarkdown": "验证点包括客户认证进度、AI服务器订单释放、低损耗材料良率、扩产节奏、单价和毛利率变化。缺少公开来源的数据必须标注待验证。",
+          "content": "验证点包括客户认证进度、AI服务器订单释放、低损耗材料良率、扩产节奏、单价和毛利率变化。缺少公开来源的数据必须标注待验证。",
+          "contentEndLine": 28,
+          "blockEndLine": 28,
+          "children": []
+        },
+        {
+          "order": 8,
+          "id": "s008",
+          "level": 2,
+          "title": "补充说明",
+          "headingMarkdown": "## 补充说明",
+          "anchor": "补充说明",
+          "startLine": 29,
+          "contentStartLine": 30,
+          "parentId": "s001",
+          "childrenIds": [],
+          "headingPath": [
+            "高频CCL产业链全景拆解样例",
+            "补充说明"
+          ],
+          "contentMarkdown": "该样例继续强调板块拆解不是新闻核验任务。分析对象是一个产业链环节，因此研究重点放在材料、工艺、产能、客户认证、国产替代和价值量传导。若后续真实执行中输入只给出板块名称，也应围绕产业链事实展开，不应引入网传小作文风险、短线市场风格、龙虎榜、连板高度、黄白线分化等消息类或交易类判断。对没有公开来源的数据，应保留待验证，并通过验证点要求人工或后续数据源确认。\n\n在落库结构上，顶层 stocks 是后端关联个股写入的唯一主入口。payload 可以保留辅助数据，但不能只把股票放在 payload.stocks。decomposition 必须直接服务用户侧全景抽屉，使用 panorama、upstream、midstream 三档、downstream、investmentRanking、validationPoints 这些稳定字段，不能只输出节点边图。",
+          "content": "该样例继续强调板块拆解不是新闻核验任务。分析对象是一个产业链环节，因此研究重点放在材料、工艺、产能、客户认证、国产替代和价值量传导。若后续真实执行中输入只给出板块名称，也应围绕产业链事实展开，不应引入网传小作文风险、短线市场风格、龙虎榜、连板高度、黄白线分化等消息类或交易类判断。对没有公开来源的数据，应保留待验证，并通过验证点要求人工或后续数据源确认。\n\n在落库结构上，顶层 stocks 是后端关联个股写入的唯一主入口。payload 可以保留辅助数据，但不能只把股票放在 payload.stocks。decomposition 必须直接服务用户侧全景抽屉，使用 panorama、upstream、midstream 三档、downstream、investmentRanking、validationPoints 这些稳定字段，不能只输出节点边图。",
+          "contentEndLine": 34,
+          "blockEndLine": 34,
+          "children": []
+        },
+        {
+          "order": 9,
+          "id": "s009",
+          "level": 2,
+          "title": "样例完整性扩展",
+          "headingMarkdown": "## 样例完整性扩展",
+          "anchor": "样例完整性扩展",
+          "startLine": 35,
+          "contentStartLine": 36,
+          "parentId": "s001",
+          "childrenIds": [],
+          "headingPath": [
+            "高频CCL产业链全景拆解样例",
+            "样例完整性扩展"
+          ],
+          "contentMarkdown": "真实执行时，产业链全景应说明上游树脂体系、铜箔粗糙度、玻纤布等级、填料体系、压合工艺和中游覆铜板制造能力之间的关系。上游材料决定介电常数、介质损耗、耐热性和可靠性，中游制造决定批量稳定性、客户认证节奏和良率，下游AI服务器、交换机和高速通信设备决定需求弹性。若某公司只具备概念关联但没有产品、客户或认证线索，应下调 relationLevel，而不是因为市场偏好小市值就提高排名。\n\n核心标的综合排序应使用技术壁垒、国产替代、业绩弹性和估值空间四个产业维度。技术壁垒包括配方能力、工艺窗口、客户验证、量产良率和专利积累；国产替代包括进口替代空间、海外限制风险和国内客户导入；业绩弹性包括业务收入占比、产能释放、价格弹性和毛利率；估值空间只作为产业排序中的一项，不得覆盖基本事实。\n\n关键验证点需要可持续跟踪：公司公告中的扩产和认证进度、主要客户或终端需求变化、AI服务器或高速交换机出货节奏、上游材料价格和供给、低损耗材料良率、行业价格竞争、海外龙头供货变化。缺少公开数据时必须写待验证，等待用户或后续数据源补充。",
+          "content": "真实执行时，产业链全景应说明上游树脂体系、铜箔粗糙度、玻纤布等级、填料体系、压合工艺和中游覆铜板制造能力之间的关系。上游材料决定介电常数、介质损耗、耐热性和可靠性，中游制造决定批量稳定性、客户认证节奏和良率，下游AI服务器、交换机和高速通信设备决定需求弹性。若某公司只具备概念关联但没有产品、客户或认证线索，应下调 relationLevel，而不是因为市场偏好小市值就提高排名。\n\n核心标的综合排序应使用技术壁垒、国产替代、业绩弹性和估值空间四个产业维度。技术壁垒包括配方能力、工艺窗口、客户验证、量产良率和专利积累；国产替代包括进口替代空间、海外限制风险和国内客户导入；业绩弹性包括业务收入占比、产能释放、价格弹性和毛利率；估值空间只作为产业排序中的一项，不得覆盖基本事实。\n\n关键验证点需要可持续跟踪：公司公告中的扩产和认证进度、主要客户或终端需求变化、AI服务器或高速交换机出货节奏、上游材料价格和供给、低损耗材料良率、行业价格竞争、海外龙头供货变化。缺少公开数据时必须写待验证，等待用户或后续数据源补充。",
+          "contentEndLine": 41,
+          "blockEndLine": 41,
+          "children": []
+        }
+      ]
+    }
+  ],
+  "industryChainPanorama": [
+    {
+      "stage": "上游材料",
+      "coreSegments": [
+        "特种树脂",
+        "电子玻纤布"
+      ],
+      "technicalBarrierLevel": "高",
+      "technicalBarrierDesc": "低介电低损耗材料配方待验证",
+      "profitDistribution": "中高",
+      "costRatio": "待验证",
+      "domesticSubstitutionProgress": "突破期",
+      "sourceType": "待验证",
+      "verificationStatus": "待验证"
+    }
+  ],
+  "decomposition": {
+    "title": "高频CCL产业链全景拆解",
+    "panorama": [
+      {
+        "segment": "中游制造",
+        "coreDetail": "高频高速CCL",
+        "barrier": "低损耗材料配方与客户认证",
+        "valueTransfer": "高"
+      }
+    ],
+    "upstream": [
+      {
+        "order": 1,
+        "company": "上游材料样例",
+        "code": "待验证",
+        "segment": "特种树脂",
+        "coreStatus": "关键材料",
+        "investmentLogic": "材料升级带来价值量提升"
+      }
+    ],
+    "upstreamKeyData": "关键树脂与铜箔供应进度待验证",
+    "midstream": {
+      "firstTier": [
+        {
+          "order": 1,
+          "company": "生益科技",
+          "code": "600183",
+          "advantage": "一体化与客户认证",
+          "status": "待验证"
+        }
+      ],
+      "secondTier": [
+        {
+          "company": "华正新材",
+          "code": "603186",
+          "features": "细分材料弹性"
+        }
+      ],
+      "thirdTier": [
+        {
+          "company": "样例公司",
+          "code": "000000",
+          "positioning": "小市值弹性，代码待验证"
+        }
+      ],
+      "techGap": "低损耗指标与海外龙头差距待验证"
+    },
+    "downstream": [
+      {
+        "scenario": "AI服务器PCB",
+        "dosage": "待验证",
+        "value": "较传统服务器提升",
+        "driver": "高速信号和高层数PCB"
+      }
+    ],
+    "investmentRanking": [
+      {
+        "order": 1,
+        "company": "生益科技",
+        "logic": "技术壁垒和客户认证领先"
+      }
+    ],
+    "validationPoints": [
+      "客户认证",
+      "订单释放",
+      "良率提升"
+    ]
+  },
+  "downstreamValueMeasurements": [
+    {
+      "scenario": "AI服务器",
+      "unitUsage": "待验证",
+      "unitValue": "待验证",
+      "multipleVsTraditional": "待验证",
+      "cagr2025To2030": "待验证",
+      "coreDriver": "算力设备升级",
+      "dataTimestamp": "2026-06-20",
+      "sourceType": "待验证"
+    }
+  ],
+  "keyValidationPoints": [
+    {
+      "type": "订单",
+      "indicator": "AI服务器材料订单",
+      "currentStatus": "待验证",
+      "sourceType": "待验证",
+      "trackingMethod": "公告/调研"
+    }
+  ],
+  "stocks": [
+    {
+      "rank": 1,
+      "name": "生益科技",
+      "code": "600183",
+      "stockName": "生益科技",
+      "stockCode": "600183",
+      "market": "A股",
+      "marketValue": "待更新",
+      "marketCap": "待更新",
+      "gain": "待更新",
+      "changePercent": "待更新",
+      "marketCapValue": null,
+      "gainValue": null,
+      "isLimitUp": false,
+      "relationLevel": "T0",
+      "relationLevelRank": 0,
+      "relationScore": 92,
+      "segment": "中游CCL制造",
+      "chainStage": "中游CCL制造",
+      "coreStatus": "高频高速CCL龙头",
+      "corePosition": "高频高速CCL龙头",
+      "investmentLogic": "受益于AI服务器高速材料升级与国产替代",
+      "linkages": [
+        "高频高速CCL(T0)"
+      ],
+      "scoreDetail": {
+        "technologyBarrier": 28,
+        "domesticSubstitution": 22,
+        "earningsElasticity": 23,
+        "valuationSpace": 16
+      },
+      "evidenceType": "待验证",
+      "verificationStatus": "待验证",
+      "sourceLinks": [],
+      "keyValidationPoints": [
+        "客户认证进度",
+        "AI服务器订单"
+      ],
+      "deepReport": {
+        "whyRankHere": "中游高频高速CCL核心厂商"
+      },
+      "source": "KimiClaw sample",
+      "needManualReview": false,
+      "reviewStatus": "not_required",
+      "status": "active"
+    }
+  ],
+  "persistContract": {
+    "bizType": "sector_stock_map",
+    "targetTables": [
+      "hot_sub_sector",
+      "sector_related_stock",
+      "stock_basic"
+    ],
+    "writeMode": "upsert_by_bizId_and_stockCode",
+    "mapper": "AiMarketMapper"
+  }
+}

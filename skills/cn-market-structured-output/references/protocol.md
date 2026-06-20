@@ -118,7 +118,7 @@ Markdown-to-JSON rules:
 
 For `cn-stock-analysis`, preserve the original full research report style: conclusion, business composition, competitive comparison, recent financials, future growth, valuation, risks, investment conclusion, portfolio allocation, and nine-factor score.
 
-For `cn-news-catalyst-analysis`, preserve the original catalyst report style: message confirmation, message value, industry-chain panorama, beneficiary ranking, short-term trading value, style-switch plan, operation strategy, risks and invalidation.
+For `cn-news-catalyst-analysis`, preserve the original catalyst report style only for `news_event` and `memo_research`: message confirmation, message value, industry-chain panorama, beneficiary ranking, short-term trading value, style-switch plan, operation strategy, risks and invalidation. For `sector_stock_map` and `sector_tree`, use a pure industry-chain report style and do not require sourceVerification, market-style judgement, or short-term trading fields.
 
 For `us-stock-options-analysis`, preserve the original fundamental-plus-options report style: fundamentals, valuation, options sentiment, options key levels, fundamental-options cross-check, risks, recommendation, portfolio allocation, and score.
 
@@ -315,6 +315,9 @@ Rules:
 - Cover upstream, midstream, and downstream when applicable.
 - Mark only 1-2 candidates as `isCore=true`.
 - Do not duplicate existing sub-sector names.
+- This is a pure industry-chain mode. Do not output message authenticity, market-style judgement, short-term trading-value ranking, or style-switch plans.
+- `categoryType` must be one of `上游材料|上游设备|中游制造|中游工艺|下游应用|技术路线|市场题材分支|其他`.
+- Use `level=2` for broad industry-chain links and `level=3` for concrete sub-segments, technologies, materials, processes, or applications.
 
 ### 6.2 `sector_stock_map`
 
@@ -326,8 +329,26 @@ Required fields:
 {
   "sectorName": "主板块",
   "subSectorName": "子板块",
-  "decomposition": {},
-  "stocks": []
+  "decomposition": {
+    "panorama": [],
+    "upstream": [],
+    "midstream": {"firstTier": [], "secondTier": [], "thirdTier": []},
+    "downstream": [],
+    "investmentRanking": [],
+    "validationPoints": []
+  },
+  "stocks": [
+    {
+      "code": "6位代码",
+      "name": "公司名称",
+      "relationLevel": "T0|T1|T2|T3|T4",
+      "relationScore": 0,
+      "segment": "产业链位置",
+      "coreStatus": "核心地位",
+      "investmentLogic": "投资逻辑",
+      "linkages": []
+    }
+  ]
 }
 ```
 
@@ -348,6 +369,9 @@ Rules:
 - Prefer at least 10 stock candidates.
 - If fewer than 10 are supportable, output fewer and explain in `qualityControl.manualReviewReasons`.
 - Do not invent codes. If code cannot be verified, exclude the stock or mark `needManualReview=true`.
+- This is a pure industry-chain mode. Do not output message authenticity, market-style judgement, short-term trading-value ranking, or style-switch plans.
+- `stocks` must be top-level. Do not put the primary stock list only under `payload.stocks`.
+- `decomposition` must use the frontend-compatible shape from section 5 (`panorama`, `upstream`, `midstream.firstTier/secondTier/thirdTier`, `downstream`, `investmentRanking`, `validationPoints`). Do not output only `{nodes,edges}`.
 
 ### 6.3 `news_event`
 

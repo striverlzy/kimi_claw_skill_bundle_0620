@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "kimi-market-v1",
+  "generatedAt": "2026-06-20T10:00:00+08:00",
+  "asOfDate": "2026-06-20",
+  "language": "zh-CN",
+  "status": "complete",
+  "dataPath": {
+    "search": "未使用",
+    "marketData": "未使用",
+    "filings": "不可用",
+    "notes": [
+      "样例数据，仅用于协议校验"
+    ]
+  },
+  "qualityControl": {
+    "dataFreshness": "unknown",
+    "sourceCoverage": "medium",
+    "hallucinationRisk": "low",
+    "missingFields": [],
+    "manualReviewReasons": []
+  },
+  "mode": "sector_tree",
+  "sectorName": "PCB",
+  "existingSubSectors": [],
+  "candidates": [
+    {
+      "name": "上游高频树脂",
+      "level": 2,
+      "description": "高频高速材料核心树脂",
+      "categoryType": "上游材料",
+      "isCore": true,
+      "reason": "低介电低损耗关键材料",
+      "sortOrder": 1
+    },
+    {
+      "name": "电子级玻纤布",
+      "level": 2,
+      "description": "高端覆铜板增强材料",
+      "categoryType": "上游材料",
+      "isCore": false,
+      "reason": "Q布等材料影响性能",
+      "sortOrder": 2
+    },
+    {
+      "name": "低粗糙度铜箔",
+      "level": 2,
+      "description": "高速信号传输关键铜箔",
+      "categoryType": "上游材料",
+      "isCore": false,
+      "reason": "降低传输损耗",
+      "sortOrder": 3
+    },
+    {
+      "name": "高频高速CCL制造",
+      "level": 2,
+      "description": "中游覆铜板制造",
+      "categoryType": "中游制造",
+      "isCore": true,
+      "reason": "承接材料到PCB价值传导",
+      "sortOrder": 4
+    },
+    {
+      "name": "高阶HDI PCB",
+      "level": 3,
+      "description": "下游AI服务器PCB应用",
+      "categoryType": "下游应用",
+      "isCore": false,
+      "reason": "算力硬件需求驱动",
+      "sortOrder": 5
+    },
+    {
+      "name": "高速交换机材料",
+      "level": 3,
+      "description": "通信设备高速板材应用",
+      "categoryType": "下游应用",
+      "isCore": false,
+      "reason": "高速网络升级带动",
+      "sortOrder": 6
+    }
+  ],
+  "persistContract": {
+    "bizType": "sector_tree",
+    "targetTables": [
+      "hot_sub_sector"
+    ],
+    "writeMode": "candidate_upsert_pending_review",
+    "mapper": "AiMarketMapper"
+  }
+}
