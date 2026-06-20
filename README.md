@@ -1,8 +1,8 @@
 # KimiClaw 股票分析 Skill Bundle
 
-打包日期：**2026-06-10**
+打包日期：**2026-06-10**；最近更新：**2026-06-20**（新增 `cn-market-writeback` 落库回写 skill；协议/框架字段对齐 0619 实体）。
 
-本 bundle 包含 KimiClaw 股票/新闻/美股分析链路所需的 5 个 skill、安装脚本，以及 **三份真实跑通的 examples**（NVDA / 贵州茅台 / Vera Rubin 催化剂）。
+本 bundle 包含 KimiClaw 股票/新闻/美股分析链路所需的 6 个 skill、安装脚本，以及 **三份真实跑通的 examples**（NVDA / 贵州茅台 / Vera Rubin 催化剂）。
 
 ## 包含内容
 
@@ -13,6 +13,7 @@ skills/
   cn-news-catalyst-analysis/
   us-stock-options-analysis/
   cn-market-structured-output/
+  cn-market-writeback/        # 2026-06-20 新增：分析后调后端 ingest 接口落库
 samples/
   kimi_claw_example_us_stock_options_full_2026-06-10.json   # 分析NVDA
   kimi_claw_example_us_stock_options_full_2026-06-10.md

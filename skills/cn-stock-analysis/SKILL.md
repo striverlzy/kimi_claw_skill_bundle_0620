@@ -19,7 +19,7 @@ Use this skill for China/HK stock analysis and portfolio-fit decisions.
 
 ## Default Return Contract
 
-Return one valid JSON object by default. Use `/Users/doublej_w/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md` and output `mode="single_stock"`. Preserve the original full report in `reportMarkdown`, then derive `reportSections` and `reportSectionTree` from the Markdown headings; structured fields extend the report, they do not replace it.
+Return one valid JSON object by default. Use `~/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md` and output `mode="single_stock"`. Preserve the original full report in `reportMarkdown`, then derive `reportSections` and `reportSectionTree` from the Markdown headings; structured fields extend the report, they do not replace it.
 
 Only use Markdown/natural language if the user explicitly asks for a prose report, quick chat answer, or non-JSON explanation.
 
@@ -31,7 +31,7 @@ Only use Markdown/natural language if the user explicitly asks for a prose repor
 4. **AnySearch 优先**：先读 `anysearch` skill 与其 `runtime.conf`，用 finance 垂直搜索和 `extract` 拉公告/研报/新闻正文；`kimi_finance` 负责实时行情；**不要默认使用 `kimi_search`**，仅当 AnySearch 连续失败且在 `dataPath` 注明后才可 fallback。
 5. Use current and sourceable data whenever tools are available. Do not invent prices, financials, analyst targets, market share, valuation multiples, or customer concentration.
 6. If required data cannot be retrieved, explicitly mark it as unavailable and continue with a constrained analysis.
-7. Read `/Users/doublej_w/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md` before composing the final answer.
+7. Read `~/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md` before composing the final answer.
 8. Produce the full ten-step analysis unless the user asks for a quick view. For a quick view, provide conclusion, valuation, risks, 3/6/12-month view, position size, and missing-data notes.
 9. Build `persistContract` from the incoming payload when present. Use `bizType="single_stock"`, `mapper="AiMarketMapper"`, `targetTables=["stock_analysis"]`, and the supplied `ingest.url`; never hardcode an ingest host.
 10. If `autoPersist=true`, validate the JSON then call `cn-market-writeback`. If `autoPersist=false`, return the complete JSON and ask whether to persist; on confirmation, call writeback with the same envelope.

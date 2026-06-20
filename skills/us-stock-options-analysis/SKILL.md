@@ -22,7 +22,7 @@ description: Use this skill when the user asks to analyze a US stock, US-listed 
 
 **默认必须返回一个合法 JSON 对象**，不得返回短 Markdown 摘要。
 
-- 协议：`/Users/doublej_w/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md`
+- 协议：`~/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md`
 - `mode="us_stock_options"`
 - `reportMarkdown` 必须是 **完整 V4 十二步报告**（见 `references/report_template.md`）
 - 从 `reportMarkdown` 标题生成 `reportSections` / `reportSectionTree`

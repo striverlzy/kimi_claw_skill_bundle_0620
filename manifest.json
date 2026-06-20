@@ -1,7 +1,8 @@
 {
   "name": "kimi_claw_skill_bundle",
-  "version": "2026-06-10",
+  "version": "2026-06-20",
   "createdAt": "2026-06-10T22:50:00+08:00",
+  "updatedAt": "2026-06-20T08:00:00+08:00",
   "skills": [
     {
       "name": "anysearch",
@@ -53,6 +54,15 @@
         "scripts/validate_market_output.py",
         "scripts/markdown_report_to_json.py"
       ]
+    },
+    {
+      "name": "cn-market-writeback",
+      "purpose": "Persist kimi-market-v1 analysis to backend ingest API (落库回写)",
+      "addedIn": "2026-06-20",
+      "tools": [
+        "scripts/persist.py"
+      ],
+      "notes": "Reads ingest url/token from payload; never hardcodes host"
     }
   ],
   "samples": [

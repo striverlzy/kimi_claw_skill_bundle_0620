@@ -7,7 +7,7 @@
 读 `anysearch/runtime.conf`，当前为 Node：
 
 ```bash
-node /Users/doublej_w/.kimi_openclaw/workspace/skills/anysearch/scripts/anysearch_cli.js
+node ~/.kimi_openclaw/workspace/skills/anysearch/scripts/anysearch_cli.js
 ```
 
 ## 推荐调用顺序（主路径）

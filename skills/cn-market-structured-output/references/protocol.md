@@ -564,5 +564,5 @@ Before returning structured output:
 For saved JSON files, validate with:
 
 ```bash
-python3 /Users/doublej_w/.kimi_openclaw/workspace/skills/cn-market-structured-output/scripts/validate_market_output.py output.json
+python3 ~/.kimi_openclaw/workspace/skills/cn-market-structured-output/scripts/validate_market_output.py output.json
 ```

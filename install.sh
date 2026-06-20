@@ -8,13 +8,13 @@ STAMP="$(date +%Y%m%d-%H%M%S)"
 
 mkdir -p "$TARGET"
 
-for skill in anysearch cn-stock-analysis cn-news-catalyst-analysis us-stock-options-analysis cn-market-structured-output; do
-  src="$ROOT/skills/$skill"
+# 自动遍历 skills/ 下所有技能目录安装（含 cn-market-writeback 等新增技能，避免漏装）
+shopt -s nullglob
+for src in "$ROOT/skills/"*/; do
+  src="${src%/}"
+  skill="$(basename "$src")"
+  [[ -f "$src/SKILL.md" ]] || continue
   dst="$TARGET/$skill"
-  if [[ ! -d "$src" ]]; then
-    echo "Missing skill: $src" >&2
-    exit 1
-  fi
   if [[ -e "$dst" ]]; then
     backup="$dst.backup-$STAMP"
     mv "$dst" "$backup"
@@ -23,6 +23,9 @@ for skill in anysearch cn-stock-analysis cn-news-catalyst-analysis us-stock-opti
   cp -R "$src" "$dst"
   echo "Installed $skill -> $dst"
 done
+shopt -u nullglob
+
+chmod +x "$TARGET/cn-market-writeback/scripts/persist.py" 2>/dev/null || true
 
 chmod +x "$TARGET/cn-market-structured-output/scripts/validate_market_output.py" 2>/dev/null || true
 chmod +x "$TARGET/cn-market-structured-output/scripts/markdown_report_to_json.py" 2>/dev/null || true

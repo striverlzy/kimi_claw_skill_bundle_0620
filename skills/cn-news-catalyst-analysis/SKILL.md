@@ -19,7 +19,7 @@ Use this skill for catalyst-first China/A-share analysis: verify a news item or 
 
 ## Default Return Contract
 
-Return one valid JSON object by default. Use `/Users/doublej_w/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md`.
+Return one valid JSON object by default. Use `~/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md`.
 
 Mode selection:
 
@@ -44,7 +44,7 @@ Preserve the original full catalyst report in `reportMarkdown`, then derive `rep
 8. Separate three rankings when relevant: industry-chain value, company fundamental benefit, and short-term trading value. Do not assume the highest industry value stock is the best short-term trade.
 9. Judge whether the core conflict is industrial change or market-style rotation. If industrial change is dominant, do not mechanically exclude large industry leaders from the top candidates.
 10. If current market-style data is unavailable, mark it as unavailable and give a conditional style plan instead of fabricating limit-up height, market-cap distribution, Dragon-Tiger list behavior, yellow/white line divergence, or drawdown statistics.
-11. Read `/Users/doublej_w/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md` before composing the final answer and choose:
+11. Read `~/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md` before composing the final answer and choose:
    - `mode="sector_tree"` for sector-to-subsector generation.
    - `mode="sector_stock_map"` for sector/subsector-to-stock mapping.
    - `mode="news_event"` for news, rumor, policy, product launch, or overseas catalyst.
