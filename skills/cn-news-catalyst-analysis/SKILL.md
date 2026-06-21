@@ -1,6 +1,6 @@
 ---
 name: cn-news-catalyst-analysis
-description: Use this skill when the user provides or asks about an industry news item, market rumor, research note, meeting minutes, "小作文", policy item, product launch, supplier-chain clue, or overseas tech-giant catalyst and wants A-share transmission analysis, source verification, industry-chain mapping, beneficiary stock ranking, short-term theme value, market-style fit, or catalyst-driven trading ideas. DEFAULT OUTPUT IS ONE kimi-market-v1 JSON OBJECT (mode=news_event/memo_research/sector_stock_map/sector_tree); 收到自然语言催化剂提问也必须先读 SKILL.md 与 cn-market-structured-output/references/protocol.md，再返回完整 JSON，其中 reportMarkdown 是完整催化剂报告。不要直接输出简短 Markdown 摘要。
+description: Use this skill when the user provides or asks about an industry news item, market rumor, research note, meeting minutes, "小作文", policy item, product launch, supplier-chain clue, or overseas tech-giant catalyst and wants A-share transmission analysis, source verification, industry-chain mapping, beneficiary stock ranking, short-term theme value, market-style fit, or catalyst-driven trading ideas. DEFAULT OUTPUT IS ONE kimi-market-v1 JSON OBJECT (mode=news_event/memo_research/sector_stock_map/sector_tree); 收到自然语言催化剂提问也必须先读 SKILL.md 与 cn-market-structured-output/references/protocol.md，再返回完整 JSON，其中 reportMarkdown 是完整催化剂报告。最终回答必须直接是 JSON 对象本身（以 `{` 开头、`}` 结尾），禁止任何开场白/过程叙述（如“正在构建…分析”“我已收集到足够信息”），禁止先声明再补 JSON。不要直接输出简短 Markdown 摘要。
 ---
 
 # cn-news-catalyst-analysis
@@ -10,6 +10,7 @@ Use this skill for catalyst-first China/A-share analysis and pure industry-chain
 ## MUST（开工前必读，不可跳过）
 
 1. 默认产出 **一个合法 kimi-market-v1 JSON 对象**，按输入选 `mode=news_event/memo_research/sector_stock_map/sector_tree`，外面不裹 Markdown 代码围栏。
+1.1. **最终回答的第一个字符必须是 `{`，最后一个字符必须是 `}`**。禁止输出“现在我已收集到足够的信息”“正在构建…分析”“下面是JSON”“分析如下”等任何开场白、过程叙述或结束语；禁止先声明再补 JSON。**必须在同一条回复里一次性直接输出完整 JSON**；即使研究尚未完全完成，也要直接产出当前可得的完整 JSON，缺失字段填 `待验证`，绝不允许只回一句开场白后停下。
 2. 动手前先读：本文件全文 → `references/framework.md` → `cn-market-structured-output/references/protocol.md`。
 3. `news_event`/`memo_research` 的 `reportMarkdown` 必须是 **完整催化剂报告**（消息核实、消息价值、产业链全景、受益排序、短期交易价值、风格切换、操作策略、风险与失效条件）；`sector_stock_map`/`sector_tree` 的 `reportMarkdown` 必须是 **纯产业链报告**（产业链全景、上游核心、中游三档、下游价值量、核心标的综合排序、关键验证点），不做消息真伪验证/市场风格/短线交易价值排序。
 4. 从 `reportMarkdown` 标题生成 `reportSections` + `reportSectionTree`，再补 `analysis / sourceVerification / decomposition / stocks / keyValidationPoints / dataPath / qualityControl`。
