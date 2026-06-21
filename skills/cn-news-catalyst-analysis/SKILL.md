@@ -11,8 +11,12 @@ Use this skill for catalyst-first China/A-share analysis and pure industry-chain
 
 1. 默认产出 **一个合法 kimi-market-v1 JSON 对象**，按输入选 `mode=news_event/memo_research/sector_stock_map/sector_tree`，外面不裹 Markdown 代码围栏。
 1.1. **最终回答的第一个字符必须是 `{`，最后一个字符必须是 `}`**。禁止输出“现在我已收集到足够的信息”“正在构建…分析”“下面是JSON”“分析如下”等任何开场白、过程叙述或结束语；禁止先声明再补 JSON。**必须在同一条回复里一次性直接输出完整 JSON**；即使研究尚未完全完成，也要直接产出当前可得的完整 JSON，缺失字段填 `待验证`，绝不允许只回一句开场白后停下。
+1.2. **执行预算（防被 KimiClaw 终止 / terminated）——最高优先级**：分析必须**又快又短地收尾**。
+   - 工具调用（AnySearch/extract/kimi_finance 等）**累计不超过 4 次**；**禁止**对同一来源反复重试或无限检索；达到上限或检索变慢就**立即停止检索**。
+   - `reportMarkdown` 保持**精简**（每个板块几句要点即可，不写长篇全文）；`decomposition`/`stocks` 等结构化字段才是前端主渲染来源。
+   - 检索失败/信息不全时，用已有信息 + 把缺失项标 `待验证` **直接产出完整 JSON**——**宁可多字段 `待验证`，也绝不能把任务拖长到被 terminated**。
 2. 动手前先读：本文件全文 → `references/framework.md` → `cn-market-structured-output/references/protocol.md`。
-3. `news_event`/`memo_research` 的 `reportMarkdown` 必须是 **完整催化剂报告**（消息核实、消息价值、产业链全景、受益排序、短期交易价值、风格切换、操作策略、风险与失效条件）；`sector_stock_map`/`sector_tree` 的 `reportMarkdown` 必须是 **纯产业链报告**（产业链全景、上游核心、中游三档、下游价值量、核心标的综合排序、关键验证点），不做消息真伪验证/市场风格/短线交易价值排序。
+3. `reportMarkdown` 一律**精简**（每板块几句要点，不写长篇，避免生成过长被 terminated）：`news_event`/`memo_research` 覆盖（消息核实、消息价值、产业链全景、受益排序、短期交易价值、风格切换、操作策略、风险与失效条件）的**要点**；`sector_stock_map`/`sector_tree` 覆盖（产业链全景、上游核心、中游三档、下游价值量、核心标的综合排序、关键验证点）的**要点**，不做消息真伪验证/市场风格/短线交易价值排序。结构化字段(decomposition/stocks/...)才是主渲染来源，务必完整。
 4. 从 `reportMarkdown` 标题生成 `reportSections` + `reportSectionTree`，再补 `analysis / sourceVerification / decomposition / stocks / keyValidationPoints / dataPath / qualityControl`。
 5. 如果 Java payload 提供 `taskNo`/`bizId`/`autoPersist`/`ingest`，必须在 JSON 中填 `persistContract`；落库只通过 `cn-market-writeback` + 后端 `AiMarketMapper`。
 6. `news_event`/`memo_research` 数据走 AnySearch 优先；传闻必须核实并在 `analysis.riskWarning` 标注证伪风险；缺数据标 `待验证`，**禁止编造**链接、时间、订单、市占率、股价、市场风格信号。`sector_stock_map`/`sector_tree` 不做 AnySearch 依赖调整，按现有可用来源补产业链事实。

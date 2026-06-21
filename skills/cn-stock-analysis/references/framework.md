@@ -113,7 +113,7 @@ Score each 1-10 and calculate weighted score. Each score must cite prior analysi
 
 ## 0619 Structured Persistence Contract
 
-The final answer must be one `kimi-market-v1` JSON object with `mode="single_stock"`. Preserve the full ten-step report in `reportMarkdown`, then map the report into `sections` for `stock_analysis` persistence through `AiMarketMapper`.
+The final answer must be one `kimi-market-v1` JSON object with `mode="single_stock"`. **默认精简模式**：`reportMarkdown` 用十步框架做**精简版**（每步几句要点，不写长文），把内容映射进 9 个 `sections` 供 `stock_analysis` 通过 `AiMarketMapper` 落库。结构化 `sections` 是前端主渲染来源，`reportMarkdown` 保持短，**优先快速一次性出完整 JSON，避免生成过长被 KimiClaw 终止（terminated）**；缺数据标 `待验证`，工具调用累计 ≤4 次。仅当用户明确要求超长完整报告时才写十步全文。
 
 ### Required Top-Level Fields
 
