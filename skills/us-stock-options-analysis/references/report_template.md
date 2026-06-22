@@ -1,6 +1,6 @@
 # V4 报告模板（reportMarkdown 标题树）
 
-`reportMarkdown` 必须按下列 **H1/H2** 标题顺序撰写，不得压缩成短评。用户只说「分析 NVDA」也要输出完整十二步 + 九维评分。
+`reportMarkdown` 必须按下列 **H1/H2** 标题顺序保留全部十二章标题（供 reportSections 树结构），但**每章正文只写 1-3 句关键要点 + 关键数字，务必精简、不写长表格、不逐章长篇**——详细数据放结构化 `sections`/`options`。**正文越短越能在 KimiClaw 单任务预算内一次吐完，绝不能因报告过长被 terminated。** 九维评分明细放结构化 `sections`，正文一句话给总分与解读即可。
 
 ## 标题树（固定）
 

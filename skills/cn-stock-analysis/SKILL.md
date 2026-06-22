@@ -30,7 +30,7 @@ Only use Markdown/natural language if the user explicitly asks for a prose repor
 
 ## Required Workflow
 
-1. Get the current date before using current prices, recent earnings, news, or relative time windows.
+1. Current date: if it is already provided in the input/context, use it directly; do not spend an extra tool call or turn just to fetch the date. Only look it up when truly absent and needed for current prices, recent earnings, news, or relative time windows.
 2. Read `references/framework.md`.
 3. Identify the market, company name, ticker, current price if provided, investment horizon, risk preference, and existing portfolio if provided.
 4. **AnySearch 优先，但严格限量（≤4 次工具调用，见 MUST 1.1）**：先读 `anysearch` skill 与其 `runtime.conf`，用 finance 垂直搜索和 `extract` 拉**最关键的 1-2 篇**公告/研报/新闻正文即可；`kimi_finance` 负责实时行情；**不要默认使用 `kimi_search`**，仅当 AnySearch 连续失败且在 `dataPath` 注明后才可 fallback。**一旦达到调用上限或检索变慢，立刻停止、直接出 JSON。**
@@ -39,7 +39,7 @@ Only use Markdown/natural language if the user explicitly asks for a prose repor
 7. Read `~/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md` before composing the final answer.
 8. **默认走精简模式**：直接产出 9 个 `sections` + `overallScore`/`recommendation`/`targetReturn`/`stopLoss` + 简短 `reportMarkdown`（结论、关键证据、风险、3/6/12 个月观点、仓位、缺数据备注）。**不要写完整十步长文**——长文会拖长生成时间、提高被 terminated 的风险。仅当用户明确要求超长完整报告时才扩写。
 9. Build `persistContract` from the incoming payload when present. Use `bizType="single_stock"`, `mapper="AiMarketMapper"`, `targetTables=["stock_analysis"]`, and the supplied `ingest.url`; never hardcode an ingest host.
-10. If `autoPersist=true`, validate the JSON then call `cn-market-writeback`. If `autoPersist=false`, return the complete JSON and ask whether to persist; on confirmation, call writeback with the same envelope.
+10. **永远一次性直接输出完整 JSON，绝不向用户提问、确认、澄清或等待二次交互。** 落库由后端决定：`autoPersist=true` 时（且 payload 带 `ingest.url`）才校验后调 `cn-market-writeback` 发送同一份完整信封；`autoPersist=false` 时**只返回完整 JSON 即可，不要问"是否落库"、不要停下等用户**（落库由后端 ingest 或管理端确认 UI 处理）。信息不足用 `待验证` 填满，照样输出**完整可解析**的 JSON。
 
 ## Output Rules
 

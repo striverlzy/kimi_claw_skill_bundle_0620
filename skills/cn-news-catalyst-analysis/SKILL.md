@@ -1,6 +1,6 @@
 ---
 name: cn-news-catalyst-analysis
-description: Use this skill when the user provides or asks about an industry news item, market rumor, research note, meeting minutes, "小作文", policy item, product launch, supplier-chain clue, or overseas tech-giant catalyst and wants A-share transmission analysis, source verification, industry-chain mapping, beneficiary stock ranking, short-term theme value, market-style fit, or catalyst-driven trading ideas. DEFAULT OUTPUT IS ONE kimi-market-v1 JSON OBJECT (mode=news_event/memo_research/sector_stock_map/sector_tree); 收到自然语言催化剂提问也必须先读 SKILL.md 与 cn-market-structured-output/references/protocol.md，再返回完整 JSON，其中 reportMarkdown 是完整催化剂报告。最终回答必须直接是 JSON 对象本身（以 `{` 开头、`}` 结尾），禁止任何开场白/过程叙述（如“正在构建…分析”“我已收集到足够信息”），禁止先声明再补 JSON。不要直接输出简短 Markdown 摘要。
+description: Use this skill when the user provides or asks about an industry news item, market rumor, research note, meeting minutes, "小作文", policy item, product launch, supplier-chain clue, or overseas tech-giant catalyst and wants A-share transmission analysis, source verification, industry-chain mapping, beneficiary stock ranking, short-term theme value, market-style fit, or catalyst-driven trading ideas. DEFAULT OUTPUT IS ONE kimi-market-v1 JSON OBJECT (mode=news_event/memo_research/sector_stock_map/sector_tree); 收到自然语言催化剂提问也必须先读 SKILL.md 与 cn-market-structured-output/references/protocol.md，再返回完整 JSON，其中 reportMarkdown 是**精简催化剂要点**（每部分几句要点，不写长篇；结构化字段 decomposition/stocks/analysis 才是主渲染源且须完整）。最终回答必须直接是 JSON 对象本身（以 `{` 开头、`}` 结尾），禁止任何开场白/过程叙述（如“正在构建…分析”“我已收集到足够信息”），禁止先声明再补 JSON。不要直接输出简短 Markdown 摘要。
 ---
 
 # cn-news-catalyst-analysis
@@ -40,11 +40,11 @@ Mode framework split:
 
 Only use Markdown/natural language if the user explicitly asks for a prose report, quick chat answer, or non-JSON explanation.
 
-Preserve the original full catalyst report in `reportMarkdown`, then derive `reportSections` and `reportSectionTree` from the Markdown headings; structured fields extend the report, they do not replace it.
+Keep `reportMarkdown` **concise** (key points per section, no long prose), then derive `reportSections` and `reportSectionTree` from the Markdown headings; the structured fields (`decomposition`/`stocks`/`analysis`/...) are the primary render source and must be complete, while `reportMarkdown` stays short so the task finishes within KimiClaw's per-task budget and is never terminated.
 
 ## Required Workflow
 
-1. Get the current date before analyzing recent news, market reaction, price moves, regulatory events, or relative time windows.
+1. Current date: if it is already provided in the input/context, use it directly — do NOT spend an extra tool call or turn just to fetch the date. Only look it up if truly absent.
 2. Read `references/framework.md`.
 3. Identify the input type and mode. If mode is `sector_tree` or `sector_stock_map`, switch to the pure industry-chain workflow in `references/framework.md` and do not apply message verification / short-term trading framework.
 4. **AnySearch 优先**：先读 `anysearch` skill 与其 `runtime.conf`，做来源发现、垂直搜索、batch_search 和 `extract` 全文抓取；`kimi_finance` 用于行情反应核验；**不要默认使用 `kimi_search`**，仅当 AnySearch 连续失败且在 `dataPath` 注明后才可 fallback。
@@ -65,14 +65,14 @@ Preserve the original full catalyst report in `reportMarkdown`, then derive `rep
    - `bizId`: sector/subsector/news/report id from Java.
    - `autoPersist`: default `false`; if `true`, call `cn-market-writeback` after validation.
    - `ingest.url` and token: use only the provided payload; never hardcode an ingest host.
-14. If `autoPersist=false`, return the complete JSON and ask the user whether to persist. On confirmation, call `cn-market-writeback` with the same complete envelope.
+14. **永远一次性直接输出完整 JSON，绝不向用户提问、确认、澄清或等待二次交互。** 落库完全由后端决定：`autoPersist=true` 时（且 payload 带 `ingest.url`）才调 `cn-market-writeback` 发送同一份完整信封；`autoPersist=false` 时**只返回完整 JSON 即可，不要问"是否落库"、不要停下等用户**（落库由后端 ingest 或管理端确认 UI 处理，与本 skill 无关）。信息不足就用 `待验证` 填满字段，照样输出**完整可解析**的 JSON。
 
 ## Output Rules
 
 - Default to JSON with the common envelope and mode-specific fields from `protocol.md`.
-- Include `reportMarkdown` with the complete human-readable catalyst report.
+- Include a **concise** `reportMarkdown` (key points only); the structured fields are the primary render source and must be complete and valid.
 - Include heading-based document fields: `reportFormat="markdown-heading-tree-v1"`, `reportTitle`, `reportSections`, and `reportSectionTree`.
-- `reportSections` must mirror the actual Markdown headings (`#`, `##`, `###`...), with `id`, `parentId`, `headingPath`, `headingMarkdown`, `childrenIds`, line numbers, and `contentMarkdown`. Do not compress the original report into only short fields.
+- `reportSections` must mirror the actual Markdown headings (`#`, `##`, `###`...), with `id`, `parentId`, `headingPath`, `headingMarkdown`, `childrenIds`, line numbers, and concise `contentMarkdown`. Keep the heading coverage complete, but keep section prose short; detailed rankings and evidence belong in structured fields.
 - Put the credibility verdict in `sourceVerification.verificationStatus`, `analysis.authenticityLevel`, and `analysis.riskWarning`.
 - If the source is a rumor or no authoritative source is found, put the required warning at the start of `analysis.riskWarning`.
 - Always separate message truth, industry value, A-share transmission, beneficiary ranking, short-term trading value, risk, and invalidation inside `analysis`, `decomposition`, `stocks`, and `keyValidationPoints`.
@@ -80,7 +80,7 @@ Preserve the original full catalyst report in `reportMarkdown`, then derive `rep
 - Cite source labels for all important facts: official source, exchange filing, media outlet/date, industry report/date, quote source/date, or "source unavailable".
 - For each recommended stock, state its exact industry-chain position and why that position benefits from the catalyst.
 - Include invalidation conditions: official denial, no price confirmation, key leader breaking trend, Dragon-Tiger list deterioration, theme fails to spread, or industry-chain transmission proves false.
-- Keep the answer proportional: full framework for serious catalyst research; concise version for quick "这消息怎么看" questions.
+- Keep the answer proportional while always respecting the execution budget: serious catalyst research should keep full coverage in structured fields, with concise `reportMarkdown`; quick "这消息怎么看" questions may be even shorter but must still return valid JSON by default.
 - For mode payloads that may be persisted, include `persistContract.mapper="AiMarketMapper"` and the target tables defined by `protocol.md`.
 - Return one valid JSON object only. Do not wrap in Markdown fences. Mark unsupported claims as `待验证`.
 

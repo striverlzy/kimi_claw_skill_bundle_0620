@@ -55,15 +55,18 @@ Every structured response must be one valid JSON object with this envelope:
 
 Rules:
 
-- JSON is an extension layer, not a replacement for the original report.
+- JSON is the authoritative final output. The human-readable report is embedded in `reportMarkdown`/`reportSections`; do not output a separate prose report before or after the JSON object.
 - `persistContract` is required for all China-market modes (`sector_tree`, `sector_stock_map`, `news_event`, `memo_research`, `single_stock`) when the payload contains `taskNo` or `ingest`. It is optional for historical samples and `us_stock_options`.
 - Skill-side writeback must call `cn-market-writeback` with the complete JSON envelope. Java ingest and gateway fallback both map through `AiMarketMapper`; do not create alternate field names or partial writeback payloads.
-- Every analysis mode except `sector_tree` must preserve the full original report:
-  - `reportMarkdown`: complete human-readable report body.
+- The final answer must be one complete JSON object in a single response. Do not ask for confirmation, do not wait for a second turn, and do not emit progress narration such as "I will now output JSON".
+- Execution budget is part of the protocol: avoid repeated search/extract loops, keep tool calls bounded by the calling Skill, stop retrieval when sources are slow/unavailable, mark missing fields as `待验证`, and still return a parseable JSON object.
+- For every analysis mode except `sector_tree`, preserve the report **structure** while keeping prose concise:
+  - `reportMarkdown`: concise human-readable report body with all required headings and key points only.
   - `reportFormat`: must be `markdown-heading-tree-v1`.
   - `reportTitle`: the first Markdown H1 title.
   - `reportSections`: flat section table generated from Markdown headings.
   - `reportSectionTree`: nested section tree generated from the same headings.
+- `reportMarkdown` and `reportSections.contentMarkdown` should stay short enough to avoid KimiClaw task termination. Put detailed data, rankings, scores, and table-like content in structured fields such as `sections`, `decomposition`, `stocks`, `options`, and `analysis`.
 - `status=complete` only when required fields are filled with sourced or clearly marked data.
 - `status=partial` when analysis is useful but some sources or market fields are missing.
 - `status=needs_manual_review` when rumor, screenshots, private notes, conflicting data, or unsupported stock relations materially affect the result.
@@ -74,7 +77,7 @@ Report preservation schema:
 {
   "reportFormat": "markdown-heading-tree-v1",
   "reportTitle": "完整报告标题",
-  "reportMarkdown": "# 完整报告标题\n\n完整正文...",
+  "reportMarkdown": "# 完整报告标题\n\n精简要点正文...",
   "reportSections": [
     {
       "order": 1,
@@ -86,7 +89,7 @@ Report preservation schema:
       "headingPath": ["完整报告标题", "业务结构与战略定位"],
       "parentId": "s000",
       "childrenIds": ["s002", "s003"],
-      "contentMarkdown": "只保留该标题下、下一个标题前的正文、表格和要点。",
+      "contentMarkdown": "只保留该标题下、下一个标题前的精简要点。",
       "content": "必须与 contentMarkdown 相同，保留兼容字段。",
       "startLine": 12,
       "contentStartLine": 13,
@@ -107,7 +110,7 @@ Report preservation schema:
 
 Markdown-to-JSON rules:
 
-- Compose the full `reportMarkdown` first.
+- Compose the concise `reportMarkdown` first. Keep the heading tree complete, but keep each section body brief.
 - Parse only Markdown ATX headings (`#`, `##`, `###`, up to `######`) to create the report structure.
 - `reportSections` is a flat ordered table. It must be enough to reconstruct the document by sorting by `order` and concatenating `headingMarkdown + "\n\n" + contentMarkdown`.
 - `reportSectionTree` is the same structure nested by heading level for frontend rendering.
@@ -116,11 +119,11 @@ Markdown-to-JSON rules:
 - Do not manually invent section titles that are not present in `reportMarkdown`.
 - Use `scripts/markdown_report_to_json.py` when converting saved Markdown examples or backfilling JSON files.
 
-For `cn-stock-analysis`, preserve the original full research report style: conclusion, business composition, competitive comparison, recent financials, future growth, valuation, risks, investment conclusion, portfolio allocation, and nine-factor score.
+For `cn-stock-analysis`, preserve the original research report **coverage** in concise form: conclusion, business composition, competitive comparison, recent financials, future growth, valuation, risks, investment conclusion, portfolio allocation, and nine-factor score. Detailed values belong in `sections`.
 
-For `cn-news-catalyst-analysis`, preserve the original catalyst report style only for `news_event` and `memo_research`: message confirmation, message value, industry-chain panorama, beneficiary ranking, short-term trading value, style-switch plan, operation strategy, risks and invalidation. For `sector_stock_map` and `sector_tree`, use a pure industry-chain report style and do not require sourceVerification, market-style judgement, or short-term trading fields.
+For `cn-news-catalyst-analysis`, preserve catalyst report **coverage** only for `news_event` and `memo_research`: message confirmation, message value, industry-chain panorama, beneficiary ranking, short-term trading value, style-switch plan, operation strategy, risks and invalidation. Keep prose concise; detailed rankings belong in `stocks`, `decomposition`, `analysis`, and `keyValidationPoints`. For `sector_stock_map` and `sector_tree`, use a pure industry-chain report style and do not require sourceVerification, market-style judgement, or short-term trading fields.
 
-For `us-stock-options-analysis`, preserve the original fundamental-plus-options report style: fundamentals, valuation, options sentiment, options key levels, fundamental-options cross-check, risks, recommendation, portfolio allocation, and score.
+For `us-stock-options-analysis`, preserve the fundamental-plus-options report **heading structure** and coverage: fundamentals, valuation, options sentiment, options key levels, fundamental-options cross-check, risks, recommendation, portfolio allocation, and score. Keep each heading concise; detailed values belong in `sections` and `options`.
 
 ## 3. Stock Item Schema
 
@@ -586,6 +589,8 @@ Before returning structured output:
 7. Source risk is reflected in `qualityControl` and `sourceVerification`.
 8. If fewer than required candidates are produced, the reason is stated in `qualityControl.manualReviewReasons`.
 9. China-market outputs that include `persistContract` must have `persistContract.mapper="AiMarketMapper"` and an `ingest.url` supplied by payload or left empty for preview-only validation.
+10. `reportMarkdown` and `reportSections.contentMarkdown` are concise; detailed rankings, tables, option metrics, and section payloads live in structured fields.
+11. The answer does not ask for persistence confirmation or promise to output JSON later.
 
 For saved JSON files, validate with:
 

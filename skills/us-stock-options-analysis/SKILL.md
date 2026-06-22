@@ -1,6 +1,6 @@
 ---
 name: us-stock-options-analysis
-description: Use this skill when the user asks to analyze a US stock, US-listed ticker, US equity portfolio, or asks for a combined fundamental plus options-market analysis including valuation, target prices, options sentiment, max pain, IV, put/call ratio, OI walls, gamma exposure, skew, or timing signals. Trigger on natural language like "分析NVDA" or "分析一下特斯拉". DEFAULT OUTPUT IS ONE kimi-market-v1 JSON OBJECT (mode=us_stock_options); 收到「分析NVDA」这类自然语言也必须先读 SKILL.md 与 cn-market-structured-output/references/protocol.md，再返回完整 JSON，其中 reportMarkdown 是完整 V4 十二章报告。不要直接输出简短 Markdown 摘要。
+description: Use this skill when the user asks to analyze a US stock, US-listed ticker, US equity portfolio, or asks for a combined fundamental plus options-market analysis including valuation, target prices, options sentiment, max pain, IV, put/call ratio, OI walls, gamma exposure, skew, or timing signals. Trigger on natural language like "分析NVDA" or "分析一下特斯拉". DEFAULT OUTPUT IS ONE kimi-market-v1 JSON OBJECT (mode=us_stock_options); 收到「分析NVDA」这类自然语言也必须先读 SKILL.md 与 cn-market-structured-output/references/protocol.md，再返回完整 JSON，其中 reportMarkdown 是**精简版 V4 报告**（保留十二章标题、每章只写关键要点；结构化字段 sections/options 才是前端主渲染源）。最终回答必须直接是 JSON 对象本身（以 `{` 开头、`}` 结尾），禁止任何开场白/过程叙述（如“正在生成完整报告”“先整理关键数据，然后输出 JSON”），禁止先声明再补 JSON。不要直接输出简短 Markdown 摘要。
 ---
 
 # us-stock-options-analysis
@@ -12,8 +12,10 @@ description: Use this skill when the user asks to analyze a US stock, US-listed 
 ## MUST（开工前必读，不可跳过）
 
 1. 本 skill 默认产出 **一个合法 kimi-market-v1 JSON 对象**，`mode="us_stock_options"`，外面不裹 Markdown 代码围栏。
+1.1. **最终回答的第一个字符必须是 `{`，最后一个字符必须是 `}`**。禁止输出“现在数据充足，我来生成报告”“先整理所有关键数据，然后输出 JSON”“下面是JSON”“分析如下”等任何开场白、过程叙述或结束语；禁止先声明再补 JSON。**必须在同一条回复里一次性直接输出完整 JSON**；即使期权链或财报细节不完整，也要直接产出当前可得的完整 JSON，缺失字段填 `待验证` / `options.dataAvailable=false`，绝不允许只回一句开场白后停下。
+1.2. **执行预算（防 terminated）——最高优先级**：工具调用累计不超过 4 次；达到上限、检索变慢、期权链不可得时立即停止检索并输出 JSON。**`reportMarkdown` 必须精简**：保留十二章标题，但每章只写 1-3 句关键要点 + 关键数字，**不写长表格、不逐章长篇复述、不展开全部九维13项**（这些放结构化 `sections`/`options`，前端主要渲染结构化字段）。**输出越短越快越能在 KimiClaw 单任务预算内跑完，宁可精简也绝不能因报告过长被 terminated。**
 2. 动手前先读：本文件全文 → `references/report_template.md` → `cn-market-structured-output/references/protocol.md`。
-3. `reportMarkdown` 必须是 **完整 V4 十二章**（`结论摘要 / 0 / 一~十二`），不得用「1. 2. 3.」旧编号，不得省略期权三章。
+3. `reportMarkdown` **保留 V4 十二章标题顺序**（`结论摘要 / 0 / 一~十二`，不得用「1. 2. 3.」旧编号、不得省略期权三章标题），但每章**只写关键要点**，不强制长表格。
 4. 从 `reportMarkdown` 标题生成 `reportSections` + `reportSectionTree`，再补 `sections / options / recommendation / overallScore / dataPath / qualityControl`。
 5. 数据走 AnySearch 优先；缺数据标 `待验证`，期权缺失标 `options.dataAvailable=false`，**禁止编造**。
 6. 仅当用户明确说「用自然语言/口语/不要 JSON」时，才只输出 Markdown。
@@ -24,17 +26,17 @@ description: Use this skill when the user asks to analyze a US stock, US-listed 
 
 - 协议：`~/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md`
 - `mode="us_stock_options"`
-- `reportMarkdown` 必须是 **完整 V4 十二步报告**（见 `references/report_template.md`）
+- `reportMarkdown` 是 **精简版 V4 报告**：保留 `report_template.md` 的十二章标题顺序，每章关键要点即可，不写长表格/长篇
 - 从 `reportMarkdown` 标题生成 `reportSections` / `reportSectionTree`
 - 只有用户**明确要求**自然语言、短答、或非 JSON 时，才可只输出 Markdown
 
-用户只说「分析 NVDA」「分析NVDA」「看看 NVDA 值不值得买」→ 视为请求 **完整 V4 JSON 研报**，不是 smoke test。
+用户只说「分析 NVDA」「分析NVDA」「看看 NVDA 值不值得买」→ 视为请求 **V4 JSON 研报（精简正文 + 完整结构化字段）**，不是 smoke test。
 
 ## Required Workflow
 
 自然语言触发，不要求用户跑脚本。
 
-1. **取当前日期**，确认 ticker、投资期限、风险偏好、是否已有持仓。
+1. **当前日期**：若入参/上下文已提供当前日期则**直接使用，不要为取日期单独检索或额外开一轮**；确认 ticker、投资期限、风险偏好、是否已有持仓。
 2. **读框架与模板**：`references/framework.md`、`references/report_template.md`。
 3. **读 JSON 协议**：`cn-market-structured-output/references/protocol.md`。
 4. **数据获取（AnySearch 优先，禁止默认 kimi_search）**：
@@ -43,7 +45,7 @@ description: Use this skill when the user asks to analyze a US stock, US-listed 
    - 主路径：`finance.news` + `extract`（IR/SEC/财报/分析师页）+ `kimi_finance`（`TICKER.US` 实时价）
    - 补充：`finance.quote` / `finance.fundamental` / `finance.calendar`
    - `kimi_search` 仅当 AnySearch 连续失败且在 `dataPath.notes` 说明后才可 fallback
-5. **撰写完整 `reportMarkdown`**：按 `report_template.md` 的 H1/H2 顺序，覆盖十二步 + 九维评分检查清单全部 13 项。
+5. **撰写精简 `reportMarkdown`**：按 `report_template.md` 的 H1/H2 标题顺序保留十二章，但**每章只写 1-3 句关键要点 + 关键数字**；九维评分明细放结构化 `sections`，正文不逐项复述全部 13 项；不写长表格。
 6. **期权模块**：
    - 有结构化期权链：分析近月（5–10 天）+ 远月（25–35 天），计算 P/C、IV、Max Pain、OI Wall、Gamma、Skew
    - 无期权链：`options.dataAvailable=false`，第六~八章仍保留并写明不可判断，**禁止编造**
@@ -72,11 +74,12 @@ description: Use this skill when the user asks to analyze a US stock, US-listed 
 ## 十二、九维评分
 ```
 
-每章须含 v4 要求的表格与「因为 A，所以 B」逻辑链。不得用「1. 基本信息」「2. 业务结构」等旧编号替代「一、二、三…」。
+每章**只写 1-3 句关键要点**（含核心数字与「因为 A 所以 B」一句话逻辑），**不强制长表格、不逐章展开**；详细数据进结构化字段。不得用「1. 基本信息」「2. 业务结构」等旧编号替代「一、二、三…」。（保留标题是为了 reportSections 树结构，正文务必短，防 terminated。）
 
 ## Output Rules
 
 - 默认：`mode="us_stock_options"` 单 JSON 对象，无 Markdown 代码围栏
+- Return one valid JSON object only. Do not output any natural-language preface, progress narration, or “I will now generate JSON” message.
 - `reportFormat="markdown-heading-tree-v1"`
 - `recommendation` 与 `sections.investmentAdvice.conclusion` 给出直接操作建议
 - `overallScore` = 九维加权总分（1–10）
