@@ -19,7 +19,7 @@ Use this skill for catalyst-first China/A-share analysis and pure industry-chain
 2. 动手前先读：本文件全文 → `references/framework.md` → `cn-market-structured-output/references/protocol.md`。
 3. `reportMarkdown` 一律**精简**（每板块几句要点，不写长篇，避免生成过长被 terminated）：`news_event`/`memo_research` 覆盖（消息核实、消息价值、产业链全景、受益排序、短期交易价值、风格切换、操作策略、风险与失效条件）的**要点**；`sector_stock_map`/`sector_tree` 覆盖（产业链全景、上游核心、中游三档、下游价值量、核心标的综合排序、关键验证点）的**要点**，不做消息真伪验证/市场风格/短线交易价值排序。结构化字段(decomposition/stocks/...)才是主渲染来源，务必完整。
 4. 从 `reportMarkdown` 标题生成 `reportSections` + `reportSectionTree`，再补 `analysis / sourceVerification / decomposition / stocks / keyValidationPoints / dataPath / qualityControl`。
-5. 如果 Java payload 提供 `taskNo`/`bizId`/`autoPersist`/`ingest`，必须在 JSON 中填 `persistContract`；落库只通过 `cn-market-writeback` + 后端 `AiMarketMapper`。
+5. 如果 Java payload 提供 `taskNo`/`bizId`/`autoPersist`/`ingest`，必须在 JSON 中填 `persistContract`；落库只通过 `cn-market-writeback` + 后端 `AiMarketMapper`。若 payload 含 `persistManagedBy="java-gateway"` 或 `writebackPolicy="return_json_only"`，说明 Java 会在收到 JSON 后负责落库，**本 skill 禁止调用 `cn-market-writeback`，只返回完整 JSON**。
 6. `news_event`/`memo_research` 数据走 AnySearch 优先；传闻必须核实并在 `analysis.riskWarning` 标注证伪风险；缺数据标 `待验证`，**禁止编造**链接、时间、订单、市占率、股价、市场风格信号。`sector_stock_map`/`sector_tree` 不做 AnySearch 依赖调整，按现有可用来源补产业链事实。
 7. 仅当用户明确说「用自然语言/口语/不要 JSON」时，才只输出 Markdown。
 
@@ -66,7 +66,8 @@ Keep `reportMarkdown` **concise** (key points per section, no long prose), then 
    - `bizId`: sector/subsector/news/report id from Java.
    - `autoPersist`: default `false`; if `true`, call `cn-market-writeback` after validation.
    - `ingest.url` and token: use only the provided payload; never hardcode an ingest host.
-14. **永远一次性直接输出完整 JSON，绝不向用户提问、确认、澄清或等待二次交互。** 落库完全由后端决定：`autoPersist=true` 时（且 payload 带 `ingest.url`）才调 `cn-market-writeback` 发送同一份完整信封；`autoPersist=false` 时**只返回完整 JSON 即可，不要问"是否落库"、不要停下等用户**（落库由后端 ingest 或管理端确认 UI 处理，与本 skill 无关）。信息不足就用 `待验证` 填满字段，照样输出**完整可解析**的 JSON。
+   - If `persistManagedBy="java-gateway"` or `writebackPolicy="return_json_only"`, set `persistContract.autoPersist` from the payload for audit if needed, but **do not call `cn-market-writeback`**; return the JSON and let Java persist.
+14. **永远一次性直接输出完整 JSON，绝不向用户提问、确认、澄清或等待二次交互。** 落库完全由后端决定：仅当 payload 明确 `autoPersist=true` 且没有 `persistManagedBy="java-gateway"` / `writebackPolicy="return_json_only"` 时，才调 `cn-market-writeback` 发送同一份完整信封；其他情况**只返回完整 JSON 即可，不要问"是否落库"、不要停下等用户**（落库由后端 ingest 或管理端确认 UI 处理，与本 skill 无关）。信息不足就用 `待验证` 填满字段，照样输出**完整可解析**的 JSON。
 
 ## Output Rules
 

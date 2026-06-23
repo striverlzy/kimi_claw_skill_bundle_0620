@@ -19,7 +19,7 @@ Use this skill for China/HK stock analysis and portfolio-fit decisions.
 3. **最终回答的第一个字符必须是 `{`，最后一个字符必须是 `}`**。禁止输出“现在我开始构建报告”“下面是JSON”“分析如下”等任何开场白、过程叙述或结束语。
 4. `reportMarkdown` 必须精简，保留结论、关键证据、主要风险和操作建议即可；不要输出超长十步全文。优先保证 `sections / recommendation / overallScore / targetReturn / stopLoss / dataSources` 完整。
 5. 从精简 `reportMarkdown` 标题生成 `reportSections` + `reportSectionTree`，再补 `sections / recommendation / overallScore / targetReturn / stopLoss / dataSources`。
-5. 如果 Java payload 提供 `taskNo`/`bizId`/`autoPersist`/`ingest`，必须在 JSON 中填 `persistContract`；落库只通过 `cn-market-writeback` + 后端 `AiMarketMapper`。
+5. 如果 Java payload 提供 `taskNo`/`bizId`/`autoPersist`/`ingest`，必须在 JSON 中填 `persistContract`；落库只通过 `cn-market-writeback` + 后端 `AiMarketMapper`。若 payload 含 `persistManagedBy="java-gateway"` 或 `writebackPolicy="return_json_only"`，说明 Java 会在收到 JSON 后负责落库，**本 skill 禁止调用 `cn-market-writeback`，只返回完整 JSON**。
 6. 数据走 AnySearch 优先；缺数据标 `待验证`，**禁止编造**价格、财务、目标价、市占率。
 7. 仅当用户明确说「用自然语言/口语/不要 JSON」时，才只输出 Markdown。
 
@@ -39,8 +39,8 @@ Only use Markdown/natural language if the user explicitly asks for a prose repor
 6. If required data cannot be retrieved, explicitly mark it as unavailable and continue with a constrained analysis.
 7. Read `~/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md` before composing the final answer.
 8. **默认走精简模式**：直接产出 9 个 `sections` + `overallScore`/`recommendation`/`targetReturn`/`stopLoss` + 简短 `reportMarkdown`（结论、关键证据、风险、3/6/12 个月观点、仓位、缺数据备注）。**不要写完整十步长文**——长文会拖长生成时间、提高被 terminated 的风险。仅当用户明确要求超长完整报告时才扩写。
-9. Build `persistContract` from the incoming payload when present. Use `bizType="single_stock"`, `mapper="AiMarketMapper"`, `targetTables=["stock_analysis"]`, and the supplied `ingest.url`; never hardcode an ingest host.
-10. **永远一次性直接输出完整 JSON，绝不向用户提问、确认、澄清或等待二次交互。** 落库由后端决定：`autoPersist=true` 时（且 payload 带 `ingest.url`）才校验后调 `cn-market-writeback` 发送同一份完整信封；`autoPersist=false` 时**只返回完整 JSON 即可，不要问"是否落库"、不要停下等用户**（落库由后端 ingest 或管理端确认 UI 处理）。信息不足用 `待验证` 填满，照样输出**完整可解析**的 JSON。
+9. Build `persistContract` from the incoming payload when present. Use `bizType="single_stock"`, `mapper="AiMarketMapper"`, `targetTables=["stock_analysis"]`, and the supplied `ingest.url`; never hardcode an ingest host. If `persistManagedBy="java-gateway"` or `writebackPolicy="return_json_only"`, set the contract for audit but **do not call `cn-market-writeback`**.
+10. **永远一次性直接输出完整 JSON，绝不向用户提问、确认、澄清或等待二次交互。** 落库由后端决定：仅当 payload 明确 `autoPersist=true` 且没有 `persistManagedBy="java-gateway"` / `writebackPolicy="return_json_only"` 时，才校验后调 `cn-market-writeback` 发送同一份完整信封；其他情况**只返回完整 JSON 即可，不要问"是否落库"、不要停下等用户**（落库由后端 ingest 或管理端确认 UI 处理）。信息不足用 `待验证` 填满，照样输出**完整可解析**的 JSON。
 
 ## Output Rules
 
