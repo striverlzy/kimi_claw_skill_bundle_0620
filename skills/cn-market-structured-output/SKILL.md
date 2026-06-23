@@ -21,7 +21,8 @@ Use this skill as the output protocol layer for China-market research tasks. It 
    - `cn-news-catalyst-analysis` for `sector_stock_map`, `news_event`, and `memo_research`.
    - `cn-stock-analysis` for `single_stock`.
    - `us-stock-options-analysis` for `us_stock_options`.
-4. Return one valid JSON object only. Do not wrap it in Markdown fences.
+4. Return one valid JSON object only. Do not wrap it in Markdown fences. The first visible character must be `{` and the last visible character must be `}`.
+4.1. Do not emit planning, search summaries, tool summaries, or transition text before the JSON. Forbidden visible phrases include: “我将构建”, “正在构建”, “基于搜索到的信息”, “现在基于收集的信息”, “我已经收集了足够的信息”, “下面是 JSON”, “Now I'll construct”, and “Let me compile”. If any such text is about to be produced, delete it and output the JSON object directly.
 5. If live data is unavailable, use `"待更新"` for realtime market fields and `"待验证"` for unsupported claims. Do not invent stock codes, prices, market caps, orders, customers, or market share.
 6. For analysis modes other than `sector_tree`, compose the full Markdown report first, then derive `reportFormat`, `reportTitle`, `reportSections`, and `reportSectionTree` from the Markdown headings.
 7. When converting a saved Markdown report into JSON fields, run `scripts/markdown_report_to_json.py report.md --base-json output.json --output output.json`.
@@ -30,6 +31,7 @@ Use this skill as the output protocol layer for China-market research tasks. It 
 ## Output Rules
 
 - Always include `schemaVersion`, `mode`, `generatedAt`, `asOfDate`, `status`, `qualityControl`, and `dataPath`.
+- The answer must start directly with `{"schemaVersion":"kimi-market-v1"` or the pretty-printed equivalent beginning with `{`. No visible prose may appear before or after the JSON object.
 - Use Chinese field values by default, but keep JSON keys in camelCase English for frontend compatibility.
 - Preserve the full report with the heading-based document fields: `reportFormat="markdown-heading-tree-v1"`, `reportTitle`, `reportMarkdown`, `reportSections`, and `reportSectionTree`.
 - `reportSections` must be generated from actual Markdown headings, with stable `id`, `parentId`, `headingPath`, `headingMarkdown`, `childrenIds`, line numbers, and `contentMarkdown`.
