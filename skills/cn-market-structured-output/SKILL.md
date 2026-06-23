@@ -34,6 +34,7 @@ Use this skill as the output protocol layer for China-market research tasks. It 
 - The answer must start directly with `{"schemaVersion":"kimi-market-v1"` or the pretty-printed equivalent beginning with `{`. No visible prose may appear before or after the JSON object.
 - Use Chinese field values by default, but keep JSON keys in camelCase English for frontend compatibility.
 - Preserve the full report with the heading-based document fields: `reportFormat="markdown-heading-tree-v1"`, `reportTitle`, `reportMarkdown`, `reportSections`, and `reportSectionTree`.
+- For `news_event` and `memo_research`, the "full report" must be a compact report: keep `reportMarkdown` around 1200 Chinese characters, keep each `reportSections[].contentMarkdown` around 120 Chinese characters, and keep `stocks` at no more than 8 entries unless the caller explicitly asks for more.
 - `reportSections` must be generated from actual Markdown headings, with stable `id`, `parentId`, `headingPath`, `headingMarkdown`, `childrenIds`, line numbers, and `contentMarkdown`.
 - `reportSectionTree` must be the nested version of the same `reportSections`, not a separate summary.
 - For every stock item, include both primary frontend fields (`name`, `code`, `marketValue`) and compatibility aliases (`stockName`, `stockCode`, `marketCap`) when the mode contains `stocks`.
@@ -41,3 +42,4 @@ Use this skill as the output protocol layer for China-market research tasks. It 
 - `gain` must be `"待更新"` unless a reliable realtime quote source was actually used.
 - `verificationStatus` must be one of `已验证`, `部分验证`, `待验证`, or `数据冲突`.
 - `needManualReview` must be `true` when the task depends on rumor, unverified screenshots, unverifiable customer/order data, or incomplete market data.
+- Do not stream a long article before finishing the JSON. When output budget is tight, prioritize a complete closing `}` over additional prose.

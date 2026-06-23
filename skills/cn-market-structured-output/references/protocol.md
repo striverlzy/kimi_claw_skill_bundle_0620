@@ -67,6 +67,7 @@ Rules:
   - `reportSections`: flat section table generated from Markdown headings.
   - `reportSectionTree`: nested section tree generated from the same headings.
 - `reportMarkdown` and `reportSections.contentMarkdown` should stay short enough to avoid KimiClaw task termination. Put detailed data, rankings, scores, and table-like content in structured fields such as `sections`, `decomposition`, `stocks`, `options`, and `analysis`.
+- For `news_event` and `memo_research`, enforce compact output by default: `reportMarkdown` should stay around 1200 Chinese characters, each `reportSections[].contentMarkdown` around 120 Chinese characters, and `stocks` at no more than 8 entries unless the caller explicitly asks for a longer list. The priority is a complete parseable JSON object, not a long prose report.
 - `status=complete` only when required fields are filled with sourced or clearly marked data.
 - `status=partial` when analysis is useful but some sources or market fields are missing.
 - `status=needs_manual_review` when rumor, screenshots, private notes, conflicting data, or unsupported stock relations materially affect the result.
@@ -122,6 +123,8 @@ Markdown-to-JSON rules:
 For `cn-stock-analysis`, preserve the original research report **coverage** in concise form: conclusion, business composition, competitive comparison, recent financials, future growth, valuation, risks, investment conclusion, portfolio allocation, and nine-factor score. Detailed values belong in `sections`.
 
 For `cn-news-catalyst-analysis`, preserve catalyst report **coverage** only for `news_event` and `memo_research`: message confirmation, message value, industry-chain panorama, beneficiary ranking, short-term trading value, style-switch plan, operation strategy, risks and invalidation. Keep prose concise; detailed rankings belong in `stocks`, `decomposition`, `analysis`, and `keyValidationPoints`. For `sector_stock_map` and `sector_tree`, use a pure industry-chain report style and do not require sourceVerification, market-style judgement, or short-term trading fields.
+
+For Gateway-driven background sync, `news_event` and `memo_research` should compress the visible report to four short groups: source verification, transmission logic, beneficiary stocks, and risks. Do not generate a long article after these fields; close the JSON object.
 
 For `us-stock-options-analysis`, preserve the fundamental-plus-options report **heading structure** and coverage: fundamentals, valuation, options sentiment, options key levels, fundamental-options cross-check, risks, recommendation, portfolio allocation, and score. Keep each heading concise; detailed values belong in `sections` and `options`.
 

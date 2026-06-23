@@ -16,9 +16,10 @@ Use this skill for catalyst-first China/A-share analysis and pure industry-chain
 1.2. **执行预算（防被 KimiClaw 终止 / terminated）——最高优先级**：分析必须**又快又短地收尾**。
    - 工具调用（AnySearch/extract/kimi_finance 等）**累计不超过 4 次**；**禁止**对同一来源反复重试或无限检索；达到上限或检索变慢就**立即停止检索**。
    - `reportMarkdown` 保持**精简**（每个板块几句要点即可，不写长篇全文）；`decomposition`/`stocks` 等结构化字段才是前端主渲染来源。
+   - `news_event` / `memo_research` **必须优先短输出**：`reportMarkdown` 不超过约 1200 中文字；`reportSections[].contentMarkdown` 每节不超过约 120 中文字；`stocks` 最多 8 只。只覆盖消息核实、产业链传导、受益标的、风险四类要点，禁止写长篇新闻报告、完整研报复述或大段来源摘录。
    - 检索失败/信息不全时，用已有信息 + 把缺失项标 `待验证` **直接产出完整 JSON**——**宁可多字段 `待验证`，也绝不能把任务拖长到被 terminated**。
 2. 动手前先读：本文件全文 → `references/framework.md` → `cn-market-structured-output/references/protocol.md`。
-3. `reportMarkdown` 一律**精简**（每板块几句要点，不写长篇，避免生成过长被 terminated）：`news_event`/`memo_research` 覆盖（消息核实、消息价值、产业链全景、受益排序、短期交易价值、风格切换、操作策略、风险与失效条件）的**要点**；`sector_stock_map`/`sector_tree` 覆盖（产业链全景、上游核心、中游三档、下游价值量、核心标的综合排序、关键验证点）的**要点**，不做消息真伪验证/市场风格/短线交易价值排序。结构化字段(decomposition/stocks/...)才是主渲染来源，务必完整。
+3. `reportMarkdown` 一律**精简**（每板块几句要点，不写长篇，避免生成过长被 terminated）：`news_event`/`memo_research` 覆盖（消息核实、产业链传导、受益排序、风险与失效条件）的**短要点**；`sector_stock_map`/`sector_tree` 覆盖（产业链全景、上游核心、中游三档、下游价值量、核心标的综合排序、关键验证点）的**要点**，不做消息真伪验证/市场风格/短线交易价值排序。结构化字段(decomposition/stocks/...)才是主渲染来源，务必完整。
 4. 从 `reportMarkdown` 标题生成 `reportSections` + `reportSectionTree`，再补 `analysis / sourceVerification / decomposition / stocks / keyValidationPoints / dataPath / qualityControl`。
 5. 如果 Java payload 提供 `taskNo`/`bizId`/`autoPersist`/`ingest`，必须在 JSON 中填 `persistContract`；落库只通过 `cn-market-writeback` + 后端 `AiMarketMapper`。若 payload 含 `persistManagedBy="java-gateway"` 或 `writebackPolicy="return_json_only"`，说明 Java 会在收到 JSON 后负责落库，**本 skill 禁止调用 `cn-market-writeback`，只返回完整 JSON**。
 6. `news_event`/`memo_research` 数据走 AnySearch 优先；传闻必须核实并在 `analysis.riskWarning` 标注证伪风险；缺数据标 `待验证`，**禁止编造**链接、时间、订单、市占率、股价、市场风格信号。`sector_stock_map`/`sector_tree` 不做 AnySearch 依赖调整，按现有可用来源补产业链事实。
@@ -42,7 +43,7 @@ Mode framework split:
 
 Only use Markdown/natural language if the user explicitly asks for a prose report, quick chat answer, or non-JSON explanation.
 
-Keep `reportMarkdown` **concise** (key points per section, no long prose), then derive `reportSections` and `reportSectionTree` from the Markdown headings; the structured fields (`decomposition`/`stocks`/`analysis`/...) are the primary render source and must be complete, while `reportMarkdown` stays short so the task finishes within KimiClaw's per-task budget and is never terminated.
+Keep `reportMarkdown` **concise** (key points per section, no long prose), then derive `reportSections` and `reportSectionTree` from the Markdown headings; the structured fields (`decomposition`/`stocks`/`analysis`/...) are the primary render source and must be complete, while `reportMarkdown` stays short so the task finishes within KimiClaw's per-task budget and is never terminated. For `news_event`/`memo_research`, cap `reportMarkdown` around 1200 Chinese characters, cap each `reportSections[].contentMarkdown` around 120 Chinese characters, and cap `stocks` at 8 entries.
 
 ## Required Workflow
 
@@ -86,6 +87,7 @@ Keep `reportMarkdown` **concise** (key points per section, no long prose), then 
 - Keep the answer proportional while always respecting the execution budget: serious catalyst research should keep full coverage in structured fields, with concise `reportMarkdown`; quick "这消息怎么看" questions may be even shorter but must still return valid JSON by default.
 - For mode payloads that may be persisted, include `persistContract.mapper="AiMarketMapper"` and the target tables defined by `protocol.md`.
 - Return one valid JSON object only. Do not wrap in Markdown fences. Mark unsupported claims as `待验证`.
+- If the model is about to produce a long news/research article, stop and compress it into short JSON fields immediately. Never continue generating prose after `reportMarkdown`; close the JSON object instead.
 
 ## Guardrails
 
