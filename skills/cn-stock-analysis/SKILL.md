@@ -10,6 +10,7 @@ Use this skill for China/HK stock analysis and portfolio-fit decisions.
 ## MUST（开工前必读，不可跳过）
 
 1. 默认产出 **一个合法 kimi-market-v1 JSON 对象本身**，`mode="single_stock"`，外面不裹 Markdown 代码围栏。
+1.0.1. **Gateway 入口硬约束**：当用户消息第一行是 `cn-stock-analysis`，第二行或后续内容才是真正问题时，第一行只作为 skill 触发标记，必须忽略这行后处理后续问题。即使输入很短（如 `分析 贵州茅台`），也必须直接返回完整 `mode="single_stock"` JSON。绝对禁止把“现在我开始构建报告”“我已收集到足够信息”“Let me compile”等过程性句子作为最终回复；如果已经准备输出这些句子，立刻改为输出 JSON。
 1.1. **执行预算（防被 KimiClaw 终止 / terminated）——最高优先级**：本分析必须**又快又短地收尾**。
    - 工具调用（AnySearch/extract/kimi_finance 等）**累计不超过 4 次**；**禁止**对同一来源反复重试或无限检索。
    - 检索缓慢、失败或信息不全时**立即停止检索**，用已有信息 + 把缺失项标 `待验证` 直接产出完整 JSON——**宁可多个字段 `待验证`，也绝不能把任务拖长到被 terminated**。

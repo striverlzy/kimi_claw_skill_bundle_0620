@@ -11,6 +11,7 @@ Use this skill for catalyst-first China/A-share analysis and pure industry-chain
 
 1. 默认产出 **一个合法 kimi-market-v1 JSON 对象**，按输入选 `mode=news_event/memo_research/sector_stock_map/sector_tree`，外面不裹 Markdown 代码围栏。
 1.1. **最终回答的第一个字符必须是 `{`，最后一个字符必须是 `}`**。禁止输出“现在我已收集到足够的信息”“正在构建…分析”“下面是JSON”“分析如下”等任何开场白、过程叙述或结束语；禁止先声明再补 JSON。**必须在同一条回复里一次性直接输出完整 JSON**；即使研究尚未完全完成，也要直接产出当前可得的完整 JSON，缺失字段填 `待验证`，绝不允许只回一句开场白后停下。
+1.1.1. **Gateway 入口硬约束**：当用户消息第一行是 `cn-news-catalyst-analysis`，第二行或后续内容才是真正问题时，第一行只作为 skill 触发标记，必须忽略这行后处理后续问题。若后续 payload/prompt 含 `mode=sector_stock_map/news_event/memo_research/sector_tree`，必须按该 mode 输出完整 JSON。绝对禁止把“我需要完成...”“正在构建...”“JSON已生成，现在执行持久化写入”“Let me compile”等过程性句子作为最终回复；如果已经准备输出这些句子，立刻改为输出 JSON。
 1.2. **执行预算（防被 KimiClaw 终止 / terminated）——最高优先级**：分析必须**又快又短地收尾**。
    - 工具调用（AnySearch/extract/kimi_finance 等）**累计不超过 4 次**；**禁止**对同一来源反复重试或无限检索；达到上限或检索变慢就**立即停止检索**。
    - `reportMarkdown` 保持**精简**（每个板块几句要点即可，不写长篇全文）；`decomposition`/`stocks` 等结构化字段才是前端主渲染来源。

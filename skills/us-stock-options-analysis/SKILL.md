@@ -13,6 +13,7 @@ description: Use this skill when the user asks to analyze a US stock, US-listed 
 
 1. 本 skill 默认产出 **一个合法 kimi-market-v1 JSON 对象**，`mode="us_stock_options"`，外面不裹 Markdown 代码围栏。
 1.1. **最终回答的第一个字符必须是 `{`，最后一个字符必须是 `}`**。禁止输出“现在数据充足，我来生成报告”“先整理所有关键数据，然后输出 JSON”“下面是JSON”“分析如下”等任何开场白、过程叙述或结束语；禁止先声明再补 JSON。**必须在同一条回复里一次性直接输出完整 JSON**；即使期权链或财报细节不完整，也要直接产出当前可得的完整 JSON，缺失字段填 `待验证` / `options.dataAvailable=false`，绝不允许只回一句开场白后停下。
+1.1.1. **Gateway 入口硬约束**：当用户消息第一行是 `us-stock-options-analysis`，第二行或后续内容才是真正问题时，第一行只作为 skill 触发标记，必须忽略这行后处理后续问题。即使输入很短（如 `分析 NVDA`），也必须直接返回完整 `mode="us_stock_options"` JSON。绝对禁止把 `Let me compile the complete analysis`、`I have gathered enough data`、`Now I have enough data` 等过程性英文/中文句子作为最终回复；如果已经准备输出这些句子，立刻改为输出 JSON。
 1.2. **执行预算（防 terminated）——最高优先级**：工具调用累计不超过 4 次；达到上限、检索变慢、期权链不可得时立即停止检索并输出 JSON。**`reportMarkdown` 必须精简**：保留十二章标题，但每章只写 1-3 句关键要点 + 关键数字，**不写长表格、不逐章长篇复述、不展开全部九维13项**（这些放结构化 `sections`/`options`，前端主要渲染结构化字段）。**输出越短越快越能在 KimiClaw 单任务预算内跑完，宁可精简也绝不能因报告过长被 terminated。**
 2. 动手前先读：本文件全文 → `references/report_template.md` → `cn-market-structured-output/references/protocol.md`。
 3. `reportMarkdown` **保留 V4 十二章标题顺序**（`结论摘要 / 0 / 一~十二`，不得用「1. 2. 3.」旧编号、不得省略期权三章标题），但每章**只写关键要点**，不强制长表格。
