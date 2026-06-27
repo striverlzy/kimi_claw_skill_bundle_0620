@@ -1,8 +1,8 @@
 # KimiClaw 股票分析 Skill Bundle
 
-打包日期：**2026-06-10**；最近更新：**2026-06-20**（新增 `cn-market-writeback` 落库回写 skill；协议/框架字段对齐 0619 实体）。
+打包日期：**2026-06-10**；最近更新：**2026-06-24**（基于 0624 writeback 版合并：催化剂 skill 拆分为 `cn-catalyst-analysis` + `cn-sector-mapping`；新增 `market_cache.py` 差异化 TTL 缓存；新闻类加「全网最早发布时间+来源URL」、纪要类加「统一归类标签」两项需求）。
 
-本 bundle 包含 KimiClaw 股票/新闻/美股分析链路所需的 6 个 skill、安装脚本，以及 **三份真实跑通的 examples**（NVDA / 贵州茅台 / Vera Rubin 催化剂）。
+本 bundle 包含 KimiClaw 股票/新闻/美股分析链路所需的 7 个 skill、安装脚本，以及 **三份真实跑通的 examples**（NVDA / 贵州茅台 / Vera Rubin 催化剂）。
 
 ## 包含内容
 
@@ -10,9 +10,10 @@
 skills/
   anysearch/
   cn-stock-analysis/
-  cn-news-catalyst-analysis/
+  cn-catalyst-analysis/       # news_event + memo_research（含两项新需求）
+  cn-sector-mapping/          # sector_tree + sector_stock_map
   us-stock-options-analysis/
-  cn-market-structured-output/
+  cn-market-structured-output/   # 协议 + validator + markdown_report_to_json + market_cache
   cn-market-writeback/        # 2026-06-20 新增：分析后调后端 ingest 接口落库
 samples/
   kimi_claw_example_us_stock_options_full_2026-06-10.json   # 分析NVDA
@@ -30,19 +31,22 @@ manifest.json
 
 ## 默认输出
 
-三个核心 skill 默认返回 `schemaVersion="kimi-market-v1"` JSON：
+核心分析 skill 默认返回 `schemaVersion="kimi-market-v1"` JSON：
 
 | Skill | mode | 测试 prompt | 实测结果 |
 |-------|------|-------------|----------|
 | us-stock-options-analysis | `us_stock_options` | 分析NVDA | 8.7/10 买入，完整十二章 |
 | cn-stock-analysis | `single_stock` | 分析贵州茅台 | 8.2/10 买入，完整十步 |
-| cn-news-catalyst-analysis | `news_event` | Vera Rubin 催化剂 | 5 只标的，消息已验证 |
+| cn-catalyst-analysis | `news_event` / `memo_research` | Vera Rubin 催化剂 | 5 只标的，消息已验证 |
+| cn-sector-mapping | `sector_tree` / `sector_stock_map` | AI算力板块拆子板块+映射个股 | 产业链拆解 + 个股候选 |
 
-## 搜索路由
+**新需求**：`news_event` 必带「全网最早发布时间 `earliestPublishTime` + 最早来源 URL `earliestSourceUrl`」；`memo_research` 必带统一归类 `researchCategory`（行业纪要/公司纪要/专家交流/券商研报/专题研报）。
+**缓存**：同一标的同 mode 命中差异化 TTL（基本面类 24h、美股期权盘中 1h）则直接读本地 JSON、跳过搜索生成。
 
-- **主路径**：AnySearch（`finance.news` / `quote` / `fundamental` / `extract`）
-- **补充**：kimi_search（深度背景、分析师观点）
-- **交叉验证**：kimi_finance（开盘时段实时价）
+## 搜索路由（双引擎并行，非主备串行）
+
+- **并发双引擎**：AnySearch（`finance.news`/`quote`/`fundamental`/`extract`）与 kimi_search（广度覆盖、中文资讯、信源发现）**每次同时并发**（`batch_search` 批量），互补 + 交叉验证。
+- **交叉验证**：kimi_finance（开盘时段实时价）；A 股 `finance.quote` 仅取实时报价时可回退 Kimi Finance。
 
 ## 快速安装
 

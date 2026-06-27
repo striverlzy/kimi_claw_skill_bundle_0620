@@ -138,11 +138,68 @@ def parse_markdown_report(markdown):
     }
 
 
+# 各 mode 的落库契约默认值（protocol §6 各 Persistence target）。末步确定性补全，
+# 避免模型偶发漏写 persistContract.writeMode 导致校验/落库失败。
+PERSIST_DEFAULTS = {
+    "sector_tree": {
+        "targetTables": ["hot_sub_sector"],
+        "writeMode": "candidate_upsert_pending_review",
+    },
+    "sector_stock_map": {
+        "targetTables": ["hot_sub_sector", "sector_related_stock", "stock_basic"],
+        "writeMode": "upsert_by_bizId_and_stockCode",
+    },
+    "news_event": {
+        "targetTables": ["news_analysis", "news_related_stock", "news", "stock_basic"],
+        "writeMode": "upsert_by_taskNo_newsId_stockCode",
+    },
+    "memo_research": {
+        "targetTables": ["research_analysis", "research_related_stock", "research_report", "stock_basic"],
+        "writeMode": "upsert_by_taskNo_reportId_stockCode",
+    },
+    "single_stock": {
+        "targetTables": ["stock_analysis"],
+        "writeMode": "upsert_by_stockCode_taskNo",
+    },
+}
+
+
+def complete_persist_contract(doc):
+    """If a persistContract is present, deterministically fill bizType / writeMode /
+    targetTables from the per-mode defaults. Does NOT create one when absent
+    (persistContract stays optional unless the payload supplies it)."""
+    if not isinstance(doc, dict):
+        return
+    contract = doc.get("persistContract")
+    if not isinstance(contract, dict):
+        return
+    mode = doc.get("mode")
+    defaults = PERSIST_DEFAULTS.get(mode)
+    if not defaults:
+        return
+    if not contract.get("bizType"):
+        contract["bizType"] = mode
+    if not contract.get("writeMode"):
+        contract["writeMode"] = defaults["writeMode"]
+    if not contract.get("targetTables"):
+        contract["targetTables"] = list(defaults["targetTables"])
+    if not contract.get("mapper"):
+        contract["mapper"] = "AiMarketMapper"
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Convert a Markdown report into heading-based JSON fields."
+        description=(
+            "Convert a Markdown report into heading-based JSON fields. "
+            "输入可为 .md 文件，也可为含 reportMarkdown 字段的 draft JSON："
+            "后者会自动把 reportMarkdown 当正文、其余字段作为 base 一并补全 "
+            "reportSections / reportSectionTree（输出加速路径）。"
+        )
     )
-    parser.add_argument("markdown_file", help="Markdown report file")
+    parser.add_argument(
+        "input_file",
+        help="Markdown report file, or draft JSON containing reportMarkdown",
+    )
     parser.add_argument("--base-json", help="Existing market JSON to patch")
     parser.add_argument("--output", "-o", help="Output JSON path")
     parser.add_argument(
@@ -152,15 +209,35 @@ def main():
     )
     args = parser.parse_args()
 
-    markdown_path = Path(args.markdown_file)
-    markdown = markdown_path.read_text(encoding="utf-8").strip() + "\n"
+    raw = Path(args.input_file).read_text(encoding="utf-8")
+
+    # 自动识别输入：含 reportMarkdown 的 JSON 草稿 vs 纯 Markdown 文件。
+    inline_base = None
+    markdown = None
+    if raw.lstrip().startswith("{"):
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError:
+            parsed = None
+        if isinstance(parsed, dict) and isinstance(parsed.get("reportMarkdown"), str):
+            inline_base = parsed
+            markdown = parsed["reportMarkdown"]
+    if markdown is None:
+        markdown = raw
+    markdown = markdown.strip() + "\n"
+
     report_fields = parse_markdown_report(markdown)
 
     if args.base_json:
         doc = json.loads(Path(args.base_json).read_text(encoding="utf-8"))
         doc.update(report_fields)
+    elif inline_base is not None:
+        doc = inline_base
+        doc.update(report_fields)
     else:
         doc = report_fields
+
+    complete_persist_contract(doc)
 
     text = json.dumps(
         doc,

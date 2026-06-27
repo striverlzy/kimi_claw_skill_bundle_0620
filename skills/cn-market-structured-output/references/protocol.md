@@ -7,7 +7,8 @@ This protocol turns market research into API-ready JSON. It is based on the loca
 For these three research skills, this protocol is the default return format:
 
 - `cn-stock-analysis`
-- `cn-news-catalyst-analysis`
+- `cn-catalyst-analysis`（modes `news_event` / `memo_research`）
+- `cn-sector-mapping`（modes `sector_tree` / `sector_stock_map`）
 - `us-stock-options-analysis`
 
 Use normal Markdown only when the user explicitly asks for a prose report, quick chat answer, or non-JSON explanation.
@@ -48,7 +49,8 @@ Every structured response must be one valid JSON object with this envelope:
     },
     "idempotencyKey": "taskNo + bizType + bizId",
     "mapper": "AiMarketMapper",
-    "targetTables": []
+    "targetTables": [],
+    "writeMode": "必填：取 §6 各 mode 对应 Persistence target 的 writeMode"
   }
 }
 ```
@@ -67,7 +69,8 @@ Rules:
   - `reportSections`: flat section table generated from Markdown headings.
   - `reportSectionTree`: nested section tree generated from the same headings.
 - `reportMarkdown` and `reportSections.contentMarkdown` should stay short enough to avoid KimiClaw task termination. Put detailed data, rankings, scores, and table-like content in structured fields such as `sections`, `decomposition`, `stocks`, `options`, and `analysis`.
-- For `news_event` and `memo_research`, enforce compact output by default: `reportMarkdown` should stay around 1200 Chinese characters, each `reportSections[].contentMarkdown` around 120 Chinese characters, and `stocks` at no more than 8 entries unless the caller explicitly asks for a longer list. The priority is a complete parseable JSON object, not a long prose report.
+- For `news_event` and `memo_research`, keep output compact but **not too short**: `reportMarkdown` 控制在 **1000–1400 中文字之间（不得低于 1000，否则 validator 不过）**，each `reportSections[].contentMarkdown` around 120 Chinese characters，and `stocks` at no more than 8 entries unless the caller explicitly asks for a longer list. The priority is a complete parseable JSON object, not a long prose report.
+- 若输出 `persistContract`，必须同时包含 `bizType`（=mode）、`targetTables` 与 `writeMode`（三者取 §6 对应 mode 的 Persistence target 值）；缺 `writeMode` 会校验不过。无 Java payload（无 `taskNo`/`ingest`）时可整体省略 `persistContract`，但**一旦给出就必须完整**。
 - `status=complete` only when required fields are filled with sourced or clearly marked data.
 - `status=partial` when analysis is useful but some sources or market fields are missing.
 - `status=needs_manual_review` when rumor, screenshots, private notes, conflicting data, or unsupported stock relations materially affect the result.
@@ -122,7 +125,7 @@ Markdown-to-JSON rules:
 
 For `cn-stock-analysis`, preserve the original research report **coverage** in concise form: conclusion, business composition, competitive comparison, recent financials, future growth, valuation, risks, investment conclusion, portfolio allocation, and nine-factor score. Detailed values belong in `sections`.
 
-For `cn-news-catalyst-analysis`, preserve catalyst report **coverage** only for `news_event` and `memo_research`: message confirmation, message value, industry-chain panorama, beneficiary ranking, short-term trading value, style-switch plan, operation strategy, risks and invalidation. Keep prose concise; detailed rankings belong in `stocks`, `decomposition`, `analysis`, and `keyValidationPoints`. For `sector_stock_map` and `sector_tree`, use a pure industry-chain report style and do not require sourceVerification, market-style judgement, or short-term trading fields.
+For `cn-catalyst-analysis` (`news_event` / `memo_research`), preserve catalyst report **coverage**: message confirmation, message value, industry-chain panorama, beneficiary ranking, short-term trading value, style-switch plan, operation strategy, risks and invalidation. Keep prose concise; detailed rankings belong in `stocks`, `decomposition`, `analysis`, and `keyValidationPoints`. For `cn-sector-mapping` (`sector_stock_map` / `sector_tree`), use a pure industry-chain report style and do not require sourceVerification, market-style judgement, or short-term trading fields.
 
 For Gateway-driven background sync, `news_event` and `memo_research` should compress the visible report to four short groups: source verification, transmission logic, beneficiary stocks, and risks. Do not generate a long article after these fields; close the JSON object.
 
@@ -389,6 +392,8 @@ Required fields:
 {
   "analysis": {
     "promptVersion": "message-analysis-kimi-v1",
+    "earliestPublishTime": "全网最早对外公布时间 ISO-8601；未检索到填 待验证",
+    "earliestSourceUrl": "该最早发布源的完整新闻 URL；未检索到填 待验证",
     "displayTitle": "",
     "displaySummary": "",
     "newsValue": "",
@@ -448,12 +453,20 @@ Persistence target:
 }
 ```
 
+Rules (需求1，强制)：
+
+- `analysis.earliestPublishTime`：必须检索该新闻在**全网范围内最早对外公布的时间**（ISO-8601），用 AnySearch + kimi_search 多源比对取最早一条；确无可靠来源时填 `待验证`。
+- `analysis.earliestSourceUrl`：必须附带该最早发布源对应的**完整新闻 URL**（不可截断/不可编造）；确无时填 `待验证`。
+- 两字段用于判断消息新鲜度与首发归属，不得用转载/聚合页冒充首发；优先官方/权威媒体原文链接。
+- **取证用 `scripts/extract_publish_date.py "<候选url1>" "<url2>" …`**：它对每个 URL 跑 anysearch extract，按「结构化元数据 → 正文 dateline → URL 内嵌日期」三级解析并跨源取最早，返回 `earliestPublishTime`/`earliestSourceUrl`。只有脚本对所有候选都返回 `null` 才填 `待验证`。
+
 ### 6.4 `memo_research`
 
 Use for meeting minutes, broker reports, expert calls, company notes, and industry notes.
 
 Use the same structure as `news_event`, but `analysis` must include:
 
+- `researchCategory`（**需求2，强制**，五选一：`行业纪要|公司纪要|专家交流|券商研报|专题研报`，由 kimiclaw 统一归类）
 - `researchType`
 - `institution`
 - `researcherOrSpeaker`

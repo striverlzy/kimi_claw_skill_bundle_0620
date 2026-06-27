@@ -9,16 +9,20 @@ STAMP="$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$TARGET"
 
 # 自动遍历 skills/ 下所有技能目录安装（含 cn-market-writeback 等新增技能，避免漏装）
+# 备份落到 skills/ 之外，否则下次自动遍历会把备份当成 skill 重装、并泄漏旧 protocol/mode。
+BACKUP_ROOT="$WORKSPACE/skills_backups/$STAMP"
 shopt -s nullglob
 for src in "$ROOT/skills/"*/; do
   src="${src%/}"
   skill="$(basename "$src")"
   [[ -f "$src/SKILL.md" ]] || continue
+  # 跳过任何历史遗留的 .backup-* 目录（防御性）
+  case "$skill" in *.backup-*) continue;; esac
   dst="$TARGET/$skill"
   if [[ -e "$dst" ]]; then
-    backup="$dst.backup-$STAMP"
-    mv "$dst" "$backup"
-    echo "Backed up existing $skill to $backup"
+    mkdir -p "$BACKUP_ROOT"
+    mv "$dst" "$BACKUP_ROOT/$skill"
+    echo "Backed up existing $skill to $BACKUP_ROOT/$skill"
   fi
   cp -R "$src" "$dst"
   echo "Installed $skill -> $dst"
@@ -29,6 +33,8 @@ chmod +x "$TARGET/cn-market-writeback/scripts/persist.py" 2>/dev/null || true
 
 chmod +x "$TARGET/cn-market-structured-output/scripts/validate_market_output.py" 2>/dev/null || true
 chmod +x "$TARGET/cn-market-structured-output/scripts/markdown_report_to_json.py" 2>/dev/null || true
+chmod +x "$TARGET/cn-market-structured-output/scripts/market_cache.py" 2>/dev/null || true
+chmod +x "$TARGET/cn-market-structured-output/scripts/extract_publish_date.py" 2>/dev/null || true
 chmod +x "$TARGET/anysearch/scripts/"*.sh 2>/dev/null || true
 chmod +x "$TARGET/anysearch/scripts/"*.py 2>/dev/null || true
 

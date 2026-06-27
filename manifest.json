@@ -1,12 +1,20 @@
 {
   "name": "kimi_claw_skill_bundle",
-  "version": "2026-06-20",
+  "version": "2026-06-24",
   "createdAt": "2026-06-10T22:50:00+08:00",
-  "updatedAt": "2026-06-20T08:00:00+08:00",
+  "updatedAt": "2026-06-24T00:00:00+08:00",
+  "changelog": [
+    "基于 0624(writeback + persistContract)合并我们的改动",
+    "催化剂 skill 拆分为 cn-catalyst-analysis(news_event/memo_research) + cn-sector-mapping(sector_tree/sector_stock_map)，mode 名不变、后端零改动",
+    "新增 market_cache.py 差异化 TTL 缓存(JSON 落本地，先查后写)",
+    "需求1: news_event 增加 earliestPublishTime + earliestSourceUrl(全网最早发布时间+来源URL)",
+    "需求2: memo_research 增加 researchCategory 五选一统一归类",
+    "搜索路由口径统一为并行，install.sh 备份移出 skills/ 防污染"
+  ],
   "skills": [
     {
       "name": "anysearch",
-      "purpose": "Realtime/search/extract helper skill (AnySearch primary, kimi_search fallback)",
+      "purpose": "Realtime finance search + extract helper (AnySearch endpoints); analysis skills run it in parallel with kimi_search, not as a fallback",
       "secretIncluded": false,
       "requiresLocalEnv": true,
       "runtime": "node"
@@ -18,15 +26,26 @@
       "testedPrompt": "分析贵州茅台"
     },
     {
-      "name": "cn-news-catalyst-analysis",
+      "name": "cn-catalyst-analysis",
       "defaultModes": [
         "news_event",
-        "memo_research",
-        "sector_stock_map",
-        "sector_tree"
+        "memo_research"
       ],
       "returnFormat": "kimi-market-v1 JSON",
-      "testedPrompt": "英伟达发布 Vera Rubin AI 芯片，对 A 股算力产业链影响"
+      "testedPrompt": "英伟达发布 Vera Rubin AI 芯片，对 A 股算力产业链影响",
+      "newRequirements": {
+        "news_event": "analysis.earliestPublishTime + analysis.earliestSourceUrl (全网最早发布时间+来源URL)",
+        "memo_research": "analysis.researchCategory ∈ {行业纪要,公司纪要,专家交流,券商研报,专题研报}"
+      }
+    },
+    {
+      "name": "cn-sector-mapping",
+      "defaultModes": [
+        "sector_tree",
+        "sector_stock_map"
+      ],
+      "returnFormat": "kimi-market-v1 JSON",
+      "testedPrompt": "把 AI 算力板块拆成子板块并映射 A 股个股"
     },
     {
       "name": "us-stock-options-analysis",
@@ -52,8 +71,29 @@
       "reportFormat": "markdown-heading-tree-v1",
       "tools": [
         "scripts/validate_market_output.py",
-        "scripts/markdown_report_to_json.py"
-      ]
+        "scripts/markdown_report_to_json.py",
+        "scripts/market_cache.py",
+        "scripts/extract_publish_date.py"
+      ],
+      "earliestPublishDateResolver": {
+        "script": "scripts/extract_publish_date.py",
+        "purpose": "需求1: 对候选源逐个 anysearch extract，按 元数据>正文dateline>URL日期 三级解析，跨源取全网最早发布时间+URL",
+        "usage": "extract_publish_date.py <url1> <url2> ...  → {earliestPublishTime, earliestSourceUrl, perUrl}"
+      },
+      "cache": {
+        "script": "scripts/market_cache.py",
+        "dir": "~/.kimi_openclaw/workspace/cache/<mode>/",
+        "policy": "differentiated TTL",
+        "ttl": {
+          "news_event": "24h",
+          "memo_research": "24h",
+          "single_stock": "24h",
+          "sector_tree": "24h",
+          "sector_stock_map": "24h",
+          "us_stock_options": "market-aware: 1h intraday (US/Eastern 09:30-16:00), else until next open"
+        },
+        "note": "lookup before analyzing; fresh hit returns persisted local JSON (servedFromCache=true) and skips search+generation; store the final JSON after generation."
+      }
     },
     {
       "name": "cn-market-writeback",
@@ -74,12 +114,16 @@
     "samples/kimi_claw_example_cn_news_catalyst_full_2026-06-10.md"
   ],
   "searchRouting": {
-    "primary": "AnySearch (finance.news / quote / fundamental / extract)",
-    "fallback": "kimi_search",
-    "crossVerify": "kimi_finance (realtime, market hours)",
+    "engines": [
+      "AnySearch (finance.news / quote / fundamental / extract)",
+      "kimi_search (breadth coverage, Chinese news, source discovery)"
+    ],
+    "mode": "parallel-complementary",
+    "modeNote": "两个引擎每次同时并发发起(batch_search 批量)，互补覆盖 + 交叉验证；不是主/备串行兜底。",
+    "crossVerify": "kimi_finance (realtime quotes, market hours)",
     "notes": [
       "US stocks: finance.quote uses type=stock,symbol=NVDA,cn_code=",
-      "A-share: AnySearch finance.quote may need fallback to Kimi Finance"
+      "A-share: AnySearch finance.quote may fall back to Kimi Finance for realtime quote only"
     ]
   },
   "security": {

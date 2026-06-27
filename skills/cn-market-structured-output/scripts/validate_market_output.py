@@ -21,6 +21,8 @@ VALID_MODES = {
 VALID_STATUS = {"complete", "partial", "needs_manual_review"}
 VALID_VERIFICATION = {"已验证", "部分验证", "待验证", "数据冲突"}
 VALID_RELATION = {"T0", "T1", "T2", "T3", "T4"}
+# 需求2：纪要/研报统一归类标签（memo_research 必填，五选一）
+VALID_RESEARCH_CATEGORY = {"行业纪要", "公司纪要", "专家交流", "券商研报", "专题研报"}
 SECTOR_TREE_CATEGORIES = {"上游材料", "上游设备", "中游制造", "中游工艺", "下游应用", "技术路线", "市场题材分支", "其他"}
 CHINA_PERSIST_MODES = {
     "sector_tree",
@@ -399,6 +401,28 @@ def validate_doc(doc):
             errors.append("options: must be object")
         elif "dataAvailable" not in options:
             errors.append("options.dataAvailable: missing")
+
+    # 需求1：新闻类分析必须给出全网最早发布时间 + 最早来源完整 URL
+    if mode == "news_event":
+        analysis = doc.get("analysis")
+        if not isinstance(analysis, dict):
+            errors.append("analysis: must be object")
+        else:
+            for field in ("earliestPublishTime", "earliestSourceUrl"):
+                if field not in analysis:
+                    errors.append(
+                        f"analysis.{field}: missing (news_event 必须检索并附带全网最早发布时间与来源 URL；未找到填 待验证)"
+                    )
+
+    # 需求2：纪要/研报必须统一归类（researchCategory 五选一）
+    if mode == "memo_research":
+        analysis = doc.get("analysis")
+        if not isinstance(analysis, dict):
+            errors.append("analysis: must be object")
+        elif analysis.get("researchCategory") not in VALID_RESEARCH_CATEGORY:
+            errors.append(
+                "analysis.researchCategory: must be one of 行业纪要/公司纪要/专家交流/券商研报/专题研报"
+            )
 
     validate_persist_contract(errors, doc)
 

@@ -38,7 +38,7 @@
 | reportSections | 11 节 |
 | 搜索 | AnySearch 公告 + kimi_search 分析师目标价 |
 
-## 3. cn-news-catalyst-analysis
+## 3. cn-catalyst-analysis（news_event / memo_research）
 
 **输入**：`英伟达发布新一代 Vera Rubin AI 芯片，分析对 A 股算力产业链的影响与受益标的`
 
