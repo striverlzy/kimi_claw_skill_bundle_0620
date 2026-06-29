@@ -7,9 +7,21 @@ description: Use this skill when the user asks to analyze A-share, Hong Kong, or
 
 Use this skill for China/HK stock analysis and portfolio-fit decisions.
 
+## 🔴 执行协议（最高优先级，覆盖下方一切“自己写 JSON”的旧表述）
+
+**你是数据检索员，不是报告撰写员。** 9 个 `sections` 一律由并发脚本 `parallel_sections.py` 生成，**严禁你自己手写 sections**。严格按 4 步执行，做完第 4 步**立即结束**：
+
+1. **检索**：用 `batch_search` 并发查关键数据（现价/财务/估值/分析师目标价/风险/催化），1–2 轮收尾。
+2. **写 brief**：把数据写成 brief JSON 存到 `/tmp/kc_brief_<code>.json`（字段见 Required Workflow 第 8 步）。写完**别再写 sections**。
+3. **跑脚本**：运行
+   `python3 ~/.kimi_openclaw/workspace/skills/cn-market-structured-output/scripts/parallel_sections.py /tmp/kc_brief_<code>.json -o /tmp/kc_final_<code>.json --mode single_stock`
+4. **交付并停**：把第 3 步命令打到 stdout 的那个完整 JSON **一字不改**作为最终回复，前后不加任何文字，然后**立即结束本次任务**。
+
+**绝对禁止**：自己手写 9 个 sections；在脚本输出之外补充分析；运行脚本后继续检索或思考。脚本的 stdout 就是最终答案。**仅当脚本非零退出/报错时**才回退自己手写。
+
 ## MUST（开工前必读，不可跳过）
 
-1. 默认产出 **一个合法 kimi-market-v1 JSON 对象本身**，`mode="single_stock"`，外面不裹 Markdown 代码围栏。
+1. 最终交付 **一个合法 kimi-market-v1 JSON 对象本身**（由上面执行协议的脚本产出），`mode="single_stock"`，外面不裹 Markdown 代码围栏。
 1.0.1. **Gateway 入口硬约束**：当用户消息第一行是 `cn-stock-analysis`，第二行或后续内容才是真正问题时，第一行只作为 skill 触发标记，必须忽略这行后处理后续问题。即使输入很短（如 `分析 贵州茅台`），也必须直接返回完整 `mode="single_stock"` JSON。绝对禁止把“现在我开始构建报告”“我已收集到足够信息”“Let me compile”等过程性句子作为最终回复；如果已经准备输出这些句子，立刻改为输出 JSON。
 1.1. **执行预算（防被 KimiClaw 终止 / terminated）——最高优先级**：本分析必须**又快又短地收尾**。
    - **工具并行优先**：用 `batch_search` 把多条 query 一次性并发发出；AnySearch 与 `kimi_search` 可**同时并行**互补覆盖、交叉验证（冲突以官方/交易所/AnySearch 原文为准），`kimi_finance` 取实时行情。**绝不逐条串行等待**。
@@ -51,14 +63,25 @@ Only use Markdown/natural language if the user explicitly asks for a prose repor
 5. Use current and sourceable data whenever tools are available. Do not invent prices, financials, analyst targets, market share, valuation multiples, or customer concentration.
 6. If required data cannot be retrieved, explicitly mark it as unavailable and continue with a constrained analysis.
 7. Read `~/.kimi_openclaw/workspace/skills/cn-market-structured-output/references/protocol.md` before composing the final answer.
-8. **默认走精简模式**：直接产出 9 个 `sections` + `overallScore`/`recommendation`/`targetReturn`/`stopLoss` + 简短 `reportMarkdown`（结论、关键证据、风险、3/6/12 个月观点、仓位、缺数据备注）。**不要写完整十步长文**——长文会拖长生成时间、提高被 terminated 的风险。仅当用户明确要求超长完整报告时才扩写。
+8. **写 brief（你唯一要写的内容；写完别再写 sections，直接进第 11 步跑脚本）**：把检索结果压成 brief JSON 写入 `/tmp/kc_brief_<code>.json`：
+   ```json
+   {
+     "stockName":"..","stockCode":"..","market":"A股/港股",
+     "lockedNumbers":{"currentPrice":"..","overallScore":<0-100>,"recommendation":"强烈买入/买入/持有/观望/回避","targetReturn":"..","stopLoss":".."},
+     "facts":{"公司概况":"..","财务":"2024及最新季度营收/利润/毛利/ROE等原始数字","主营结构":"..","竞争格局与份额":"..","增长催化与一致预期":"..","估值倍数与分析师目标价":"..","风险":["..",".."],"评分维度":".."},
+     "dataSources":["AnySearch ..","Kimi Search .."],
+     "reportMarkdown":"<300-600字精简研报，规范 #/##/### 标题：结论/关键证据/风险/3-6-12月观点/仓位>",
+     "persistContract":{ "见第 9 步，存在 payload 时带上" }
+   }
+   ```
+   `facts` 尽量覆盖九维度原始数字（缺的标 `待验证`、禁止编造）；`lockedNumbers` 定下后所有 section 都会引用它。
 9. Build `persistContract` from the incoming payload when present. Use `bizType="single_stock"`, `mapper="AiMarketMapper"`, `targetTables=["stock_analysis"]`, and the supplied `ingest.url`; never hardcode an ingest host. If `persistManagedBy="java-gateway"` or `writebackPolicy="return_json_only"`, set the contract for audit but **do not call `cn-market-writeback`**.
 10. **永远一次性直接输出完整 JSON，绝不向用户提问、确认、澄清或等待二次交互。** 落库由后端决定：仅当 payload 明确 `autoPersist=true` 且没有 `persistManagedBy="java-gateway"` / `writebackPolicy="return_json_only"` 时，才校验后调 `cn-market-writeback` 发送同一份完整信封；其他情况**只返回完整 JSON 即可，不要问"是否落库"、不要停下等用户**（落库由后端 ingest 或管理端确认 UI 处理）。信息不足用 `待验证` 填满，照样输出**完整可解析**的 JSON。
-11. **输出加速末步（生成标题树）**：把上面组好的 JSON 草稿（`reportSections=[]`、`reportSectionTree=[]`，其余业务字段齐全）写入临时文件，运行脚本回填标题树得到最终交付 JSON：
+11. **跑并发脚本并交付（必须执行，做完立即结束）**：
     ```bash
-    python3 ~/.kimi_openclaw/workspace/skills/cn-market-structured-output/scripts/markdown_report_to_json.py <draft.json> -o <final.json>
+    python3 ~/.kimi_openclaw/workspace/skills/cn-market-structured-output/scripts/parallel_sections.py /tmp/kc_brief_<code>.json -o /tmp/kc_final_<code>.json --mode single_stock
     ```
-    脚本会**保留草稿里所有业务字段**（含 `persistContract`、`sections`、评分、建议等），仅补全 `reportSections`/`reportSectionTree`/`reportTitle`/`reportFormat`。交付 `<final.json>` 的内容。若环境无法跑脚本，可直接交付带空数组的 JSON（后端落库不依赖这两个字段、前端以 `reportMarkdown`+结构化字段渲染），无需手写大段标题树。
+    脚本内部把 9 个 section 分桶**并发调用模型**生成、强制引用 `lockedNumbers`、合并成完整信封、回填 `reportSections/reportSectionTree`、自检校验，并把最终 JSON 打到 **stdout**。**把该 stdout 的 JSON 一字不改作为最终回复，前后不加任何文字，然后立即结束**（含 `schemaVersion/mode/sections(9)/overallScore/recommendation/targetReturn/stopLoss/dataSources/report*`，且 `dataPath.generation="parallel-raw-llm"`）。脚本成功后按 `## Cache` 末步 `market_cache.py store` 写缓存。**仅当脚本报错/非零退出**时才回退自己手写 9 段，绝不交付不完整 JSON。
 
 ## Output Rules
 

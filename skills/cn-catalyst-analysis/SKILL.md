@@ -7,6 +7,25 @@ description: Use this skill when the user provides or asks about an industry new
 
 Use this skill for catalyst-first China/A-share analysis: verify a news item, rumor, or research/memo source, map its industry-chain impact, identify A-share beneficiaries, and separate industrial value from short-term trading value. It owns `mode=news_event`（新闻/传闻/政策/新品/海外催化）与 `mode=memo_research`（纪要/研报/专家交流/公司或行业纪要）。Sector decomposition（`sector_tree`/`sector_stock_map`）在 cn-sector-mapping skill。
 
+## 🔴 执行协议（最高优先级，覆盖下方一切“自己写 JSON”的旧表述）
+
+**你是数据检索员，不是报告撰写员。** `analysis/decomposition/industryChainPanorama/stocks` 等结构化字段一律由并发脚本 `parallel_sections.py` 生成，**严禁你自己手写**。严格按 4 步，做完第 4 步**立即结束**：
+
+1. **选 mode**：新闻/传闻/政策/新品/海外催化 → `news_event`；纪要/研报/专家交流/公司或行业纪要 → `memo_research`。
+2. **检索**：`batch_search` 并发查事件真伪、最早发布时间与来源、产业链传导、A股受益标的，1–2 轮收尾。
+3. **写 brief** 存到 `/tmp/kc_brief_catalyst.json`：
+   ```json
+   {"title":"事件/纪要标题","facts":{"事件":"..","真伪":"..","产业链传导":"..","市场风格":".."},
+    "earliestPublishTime":"news_event必填:全网最早发布时间","earliestSourceUrl":"news_event必填:最早来源URL",
+    "researchCategory":"memo_research必填:行业纪要/公司纪要/专家交流/券商研报/专题研报 五选一",
+    "stocks":[{"name":"中际旭创","code":"300308","segment":"光模块","investmentLogic":"800G放量"}],
+    "dataSources":["AnySearch ..","Kimi Search .."],
+    "reportMarkdown":"≥1000字精简催化剂研报，规范 #/##/### 标题"}
+   ```
+4. **跑脚本并停**：`python3 ~/.kimi_openclaw/workspace/skills/cn-market-structured-output/scripts/parallel_sections.py /tmp/kc_brief_catalyst.json -o /tmp/kc_final_catalyst.json --mode <news_event|memo_research>`。**脚本只运行一次**；它打印到 stdout 的 JSON 就是最终答案，**立刻一字不改作为回复并结束**，前后不加任何文字。
+
+**绝对禁止**：自己手写 stocks/decomposition/analysis；**第二次运行脚本**；脚本输出之外补充分析；运行脚本后继续检索/思考/校验。脚本返回有效 JSON 后唯一动作=把它作为回复、结束。**仅当脚本非零退出/报错时**才回退手写。
+
 ## MUST（开工前必读，不可跳过）
 
 1. 默认产出 **一个合法 kimi-market-v1 JSON 对象**，按输入选 `mode=news_event` 或 `mode=memo_research`，外面不裹 Markdown 代码围栏。

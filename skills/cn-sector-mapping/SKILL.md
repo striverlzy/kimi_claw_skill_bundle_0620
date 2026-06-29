@@ -12,6 +12,26 @@ Pure industry-chain decomposition tooling — a two-step pipeline:
 
 These are **pure industry-chain modes**: do NOT run message-truth verification, information-increment reset, market-style judgement, short-term trading-value ranking, or style-switch plans. For那些 use `cn-catalyst-analysis`.
 
+## 🔴 执行协议（最高优先级，覆盖下方一切“自己写 JSON”的旧表述）
+
+**你是数据检索员，不是报告撰写员。** `candidates/decomposition/stocks` 等结构化字段一律由并发脚本 `parallel_sections.py` 生成，**严禁你自己手写**。严格按 4 步，做完第 4 步**立即结束**：
+
+1. **选 mode**：把板块拆成子板块 → `sector_tree`；给定板块/子板块映射个股 → `sector_stock_map`。
+2. **检索**：`batch_search` 并发查产业链结构与 A股标的，1–2 轮收尾。
+3. **写 brief** 存到 `/tmp/kc_brief_sector.json`：
+   ```json
+   {"sectorName":"AI算力",
+    "existingSubSectors":["sector_tree用:已有子板块列表"],
+    "subSectorName":"sector_stock_map用:目标子板块,如 光模块",
+    "stocks":[{"name":"中际旭创","code":"300308","segment":"光模块","investmentLogic":"800G放量"}],
+    "facts":{"产业链":"..","上中下游":"..","国产替代":".."},
+    "dataSources":["AnySearch ..","Kimi Search .."],
+    "reportMarkdown":"sector_stock_map需≥1000字精简拆解(sector_tree可省)，规范 #/##/### 标题"}
+   ```
+4. **跑脚本并停**：`python3 ~/.kimi_openclaw/workspace/skills/cn-market-structured-output/scripts/parallel_sections.py /tmp/kc_brief_sector.json -o /tmp/kc_final_sector.json --mode <sector_tree|sector_stock_map>`。**脚本只运行一次**；它打印到 stdout 的 JSON 就是最终答案，**立刻一字不改作为回复并结束**，前后不加任何文字。
+
+**绝对禁止**：自己手写 candidates/decomposition/stocks；**第二次运行脚本**；脚本输出之外补充分析；运行脚本后继续检索/思考。脚本返回有效 JSON 后唯一动作=把它作为回复、结束。**仅当脚本非零退出/报错时**才回退手写。
+
 ## MUST（开工前必读，不可跳过）
 
 1. 默认产出 **一个合法 kimi-market-v1 JSON 对象**，按任务选 `mode=sector_tree` 或 `mode=sector_stock_map`，外面不裹 Markdown 代码围栏。

@@ -40,17 +40,45 @@ DEFAULT_TTL = 24 * 3600
 US_OPTIONS_INTRADAY_TTL = 3600  # 1h while the US market is open
 
 
-def normalize_target(target):
-    """Stable cache key piece from a free-text target.
+# 噪声词：不同问法（"分析XX最新刷新" vs "XX"）必须归一到同一缓存键
+_NOISE = re.compile(
+    r"(分析|最新|刷新|重新分析|重新|请帮我|帮我|请|一下|的|股票|个股|走势|"
+    r"怎么样|如何|看看|研报|深度|价值|投资|价格|目标价|是否值得买|值得买|买入|"
+    r"analyze|analysis|stock|please|the)",
+    re.IGNORECASE,
+)
 
-    Stocks usually arrive as a code (NVDA / 601318) or a stable name; we lowercase,
-    strip spaces/punctuation, and hash so '中国平安' and ' 中国平安 ' collide while
-    staying human-readable via a short prefix.
+
+def normalize_target(target):
+    """Stable cache key from a free-text target — phrasing-invariant.
+
+    优先提取**股票代码**作为 canonical key（最稳定），这样
+    '分析三花智控(002050)最新刷新' / '002050' / '三花智控 002050' 命中同一缓存：
+      1) A股 6 位代码        -> 该代码
+      2) 港股带前导 0 的代码 -> 该代码（避开 2024/2025 这类年份）
+      3) 纯英文 ticker(≤5)   -> 大写（美股，如 NVDA）
+      4) 否则用去噪+去标点的名称做短 hash（'中国平安' 与 ' 中国平安 ' 仍碰撞）
     """
-    raw = target.strip().lower()
-    collapsed = re.sub(r"\s+", "", raw)
-    digest = hashlib.sha1(collapsed.encode("utf-8")).hexdigest()[:12]
-    prefix = re.sub(r"[^0-9a-z一-鿿]+", "-", raw)[:40].strip("-")
+    raw = (target or "").strip()
+    # 1) A 股 6 位代码（年份不会是 6 位，安全）
+    m = re.search(r"(?<![0-9])[036]\d{5}(?![0-9])", raw) or re.search(r"(?<![0-9])\d{6}(?![0-9])", raw)
+    if m:
+        return m.group(0)
+    # 2) 港股带前导 0 的代码（0700/00700），年份 20xx/19xx 不以 0 开头
+    m = re.search(r"(?<![0-9])0\d{3,4}(?![0-9])", raw)
+    if m:
+        return m.group(0)
+    # 3) 去噪后若是 ≤5 位纯英文 ticker（美股）
+    cleaned = _NOISE.sub("", raw)
+    letters = re.sub(r"[^A-Za-z]", "", cleaned)
+    if letters and len(letters) <= 5 and not re.search(r"[一-鿿]", cleaned):
+        return letters.upper()
+    # 4) 名称兜底：去噪 + 去标点 + lower，再短 hash（可读前缀 + 防碰撞）
+    name = re.sub(r"[\s\(\)（）【】\[\]，,。.\-_/、:：]+", "", _NOISE.sub("", raw)).lower()
+    if not name:
+        name = re.sub(r"\s+", "", raw.lower())
+    digest = hashlib.sha1(name.encode("utf-8")).hexdigest()[:8]
+    prefix = re.sub(r"[^0-9a-z一-鿿]+", "", name)[:20]
     return f"{prefix}-{digest}" if prefix else digest
 
 

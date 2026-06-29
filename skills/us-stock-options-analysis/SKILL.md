@@ -9,6 +9,25 @@ description: Use this skill when the user asks to analyze a US stock, US-listed 
 
 核心理念：基本面决定买什么、持有多久；期权决定何时买、何时卖；不做期权交易，只用期权数据优化时机。
 
+## 🔴 执行协议（最高优先级，覆盖下方一切“自己写 JSON”的旧表述）
+
+**你是数据检索员，不是报告撰写员。** 9 个 `sections` 与 `options` 一律由并发脚本 `parallel_sections.py` 生成，**严禁你自己手写**。严格按 4 步，做完第 4 步**立即结束**：
+
+1. **检索**：`batch_search` 并发查美股基本面（财务/估值/分析师目标价/催化/风险）与期权面（IV/PCR/max pain/OI walls/gamma/skew），1–2 轮收尾。
+2. **写 brief** 存到 `/tmp/kc_brief_<ticker>.json`：
+   ```json
+   {"stockName":"..","stockCode":"NVDA","market":"美股",
+    "lockedNumbers":{"currentPrice":"$..","overallScore":<0-100>,"recommendation":"强烈买入/买入/持有/观望/回避"},
+    "facts":{"公司概况":"..","财务":"..","估值与目标价":"..","竞争":"..","增长催化":"..","风险":".."},
+    "optionsData":"IV/ivRank/PCR/maxPain/callWall/putWall/gammaExposure/skew 等已查到的期权数据",
+    "dataSources":["AnySearch ..","Kimi Search .."],
+    "reportMarkdown":"≥1000字精简版 V4 十二章报告，规范 #/##/### 标题"}
+   ```
+3. **跑脚本**：`python3 ~/.kimi_openclaw/workspace/skills/cn-market-structured-output/scripts/parallel_sections.py /tmp/kc_brief_<ticker>.json -o /tmp/kc_final_<ticker>.json --mode us_stock_options`
+4. **交付并停**：**脚本只运行一次**；它打印到 stdout 的完整 JSON 就是最终答案，**立刻把它一字不改作为你的回复并结束本次任务**，前后不加任何文字。
+
+**绝对禁止**：自己手写 sections/options；**第二次运行脚本**；脚本输出之外补充分析；运行脚本后继续检索/思考/校验。脚本一旦返回有效 JSON，你的唯一动作就是把它作为回复、结束。**仅当脚本非零退出/报错时**才回退手写。
+
 ## MUST（开工前必读，不可跳过）
 
 1. 本 skill 默认产出 **一个合法 kimi-market-v1 JSON 对象**，`mode="us_stock_options"`，外面不裹 Markdown 代码围栏。
